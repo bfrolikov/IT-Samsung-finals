@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">IT_Samsung_Finals</string>
+    <string name="title_profile">Профиль</string>
+    <string name="title_messages">Сообщения</string>
+    <string name="title_search">Поиск</string>
+    <string name="enter_social_media">Введите ссылку</string>
+    <string name="social_media_link">Ссылка на социальную сеть</string>
+    <string name="exit">Выйти</string>
+    <string name="country">Страна</string>
+    <string name="city">Город</string>
+    <string name="enter_country">Введите страну</string>
+    <string name="enter_city">Введите город</string>
+    <string name="requests">Требования к клиентам</string>
+    <string name="enter_requests">Введите ваши условия проведения экскурсии</string>
+</resources>

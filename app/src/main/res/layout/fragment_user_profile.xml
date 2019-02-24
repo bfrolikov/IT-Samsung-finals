@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/prof_profile_image"
+        android:layout_width="75dp"
+        android:layout_height="81dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/prof_city"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/user_placeholder" />
+
+    <TextView
+        android:id="@+id/prof_username"
+        style="@style/UsernameStyle"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toEndOf="@+id/prof_profile_image"
+        app:layout_constraintTop_toTopOf="@+id/prof_profile_image"
+        tools:text="Иван Иванов" />
+
+    <TextView
+        android:id="@+id/prof_city"
+        style="@style/CityStyle"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/prof_profile_image"
+        app:layout_constraintTop_toBottomOf="@+id/prof_username"
+        tools:text="Нефтепавловск-Камчатский" />
+
+    <ImageView
+        android:id="@+id/prof_flag"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/prof_city"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/prof_city"
+        app:layout_constraintTop_toTopOf="@+id/prof_city"
+        app:srcCompat="@drawable/flag_placeholder" />
+
+    <EditText
+        android:id="@+id/prof_social_edit"
+        style="@style/EntryFieldStyle"
+        android:layout_marginTop="64dp"
+        android:hint="@string/enter_social_media"
+        android:inputType="textUri"
+        app:layout_constraintStart_toStartOf="@+id/prof_profile_image"
+        app:layout_constraintTop_toBottomOf="@+id/prof_city"
+        tools:text="vk.com/sobaka" />
+
+    <TextView
+        android:id="@+id/prof_social_media_caption"
+        style="@style/captionStyle"
+        android:layout_marginTop="8dp"
+        android:text="@string/social_media_link"
+        app:layout_constraintBottom_toTopOf="@+id/prof_social_edit"
+        app:layout_constraintStart_toStartOf="@+id/prof_social_edit"
+        app:layout_constraintTop_toBottomOf="@+id/prof_profile_image"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/prof_exit_button"
+        style="@style/ExitButtonStyle"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/prof_requests_edit" />
+
+    <EditText
+        android:id="@+id/prof_country_edit"
+        style="@style/EntryFieldStyle"
+        android:layout_marginTop="36dp"
+        android:hint="@string/enter_country"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="@+id/prof_social_edit"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/prof_social_edit"
+        app:layout_constraintTop_toBottomOf="@+id/prof_social_edit"
+        tools:text="Российкая республика" />
+
+    <TextView
+        android:id="@+id/prof_country_caption"
+        style="@style/captionStyle"
+        android:text="@string/country"
+        app:layout_constraintBottom_toTopOf="@+id/prof_country_edit"
+        app:layout_constraintStart_toStartOf="@+id/prof_country_edit" />
+
+    <EditText
+        android:id="@+id/prof_city_edit"
+        style="@style/EntryFieldStyle"
+        android:layout_marginTop="36dp"
+        android:hint="@string/enter_city"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="@+id/prof_country_edit"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/prof_country_edit"
+        app:layout_constraintTop_toBottomOf="@+id/prof_country_edit"
+        tools:text="Йорк" />
+
+    <TextView
+        android:id="@+id/prof_city_caption"
+        style="@style/captionStyle"
+        android:text="@string/city"
+        app:layout_constraintBottom_toTopOf="@+id/prof_city_edit"
+        app:layout_constraintStart_toStartOf="@+id/prof_city_edit" />
+
+
+    <EditText
+        android:id="@+id/prof_requests_edit"
+        style="@style/EntryFieldStyle"
+        android:layout_marginTop="36dp"
+        android:ems="15"
+        android:hint="@string/enter_requests"
+        android:inputType="textMultiLine"
+        android:lines="6"
+        android:maxLines="10"
+        app:layout_constraintEnd_toEndOf="@+id/prof_city_edit"
+        app:layout_constraintHorizontal_bias="0.009"
+        app:layout_constraintStart_toStartOf="@+id/prof_city_edit"
+        app:layout_constraintTop_toBottomOf="@+id/prof_city_edit"
+        tools:text="5 бутылок водки" />
+
+    <TextView
+        style="@style/captionStyle"
+        android:layout_marginBottom="8dp"
+        android:text="@string/requests"
+        app:layout_constraintBottom_toTopOf="@+id/prof_requests_edit"
+        app:layout_constraintStart_toStartOf="@+id/prof_requests_edit" />
+
+</android.support.constraint.ConstraintLayout>
