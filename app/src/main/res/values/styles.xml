@@ -15,6 +15,7 @@
     </style>
     <style name="CityStyle" parent="UsernameStyle">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Subtitle1</item>
+        <item name="android:textColor">@color/colorSecondaryText</item>
     </style>
     <style name="captionStyle">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
@@ -38,6 +39,22 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:ems">10</item>
+    </style>
+    <style name="RatingBarIndicatorStyle" parent="Widget.AppCompat.RatingBar.Indicator">
+        <item name="android:numStars">5</item>
+        <item name="android:transformPivotX">0dp</item>
+        <item name="android:scaleY">0.75</item>
+        <item name="android:scaleX">0.75</item>
+    </style>
+    <style name="RatingBarTheme" parent="Theme.AppCompat">
+        <item name="colorControlNormal">@color/colorPrimaryLight</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
+    </style>
+    <style name="DemandsStyle" parent="CityStyle">
+        <item name="android:textSize">16sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+
     </style>
 
 </resources>

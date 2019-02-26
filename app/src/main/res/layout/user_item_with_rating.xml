@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="16dp">
+
+    <ImageView
+        android:id="@+id/usr_profile_image"
+        android:layout_width="105dp"
+        android:layout_height="94dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/user_placeholder" />
+
+    <RatingBar
+        android:id="@+id/usr_rating"
+        style="@style/RatingBarIndicatorStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="2dp"
+        android:rating="4.5"
+        android:theme="@style/RatingBarTheme"
+        app:layout_constraintStart_toEndOf="@+id/usr_profile_image"
+        app:layout_constraintTop_toTopOf="@+id/usr_profile_image" />
+
+    <TextView
+        android:id="@+id/usr_username"
+        style="@style/UsernameStyle"
+        android:layout_width="0dp"
+        android:layout_marginTop="34dp"
+        android:layout_marginEnd="8dp"
+        android:drawableStart="@drawable/ic_person_pin_black"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textSize="17sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/usr_rating"
+        app:layout_constraintTop_toTopOf="@+id/usr_profile_image"
+        tools:text="Максим, Санкт-Петербург" />
+
+    <TextView
+        android:id="@+id/usr_demands"
+        style="@style/DemandsStyle"
+        android:layout_width="0dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/usr_username"
+        app:layout_constraintTop_toBottomOf="@+id/usr_username"
+        tools:text="2 пакетика травы, 75 ампул мескалина"
+        android:drawableStart="@drawable/ic_money_black" />
+
+</android.support.constraint.ConstraintLayout>
