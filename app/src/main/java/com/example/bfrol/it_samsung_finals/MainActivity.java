@@ -32,18 +32,23 @@ public class MainActivity extends AppCompatActivity {
             //here the bottom navigation events are handled and the fragments in the main_fragment_space are replaced
             switch (item.getItemId()) {
                 case R.id.navigation_profile:
-                    //the user profile menu was opened
-                    UserProfileFragment fragment = new UserProfileFragment();
-                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.fragment_area,fragment);
-                    fragmentTransaction.commit();
+                    //the user profile menu was opened so an instance of UserProfileFragment is inflated and inserted into the UI
+                    UserProfileFragment userProfileFragment = new UserProfileFragment();
+                    FragmentTransaction userProfileFragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    userProfileFragmentTransaction.replace(R.id.fragment_area,userProfileFragment);
+                    userProfileFragmentTransaction.commit();
                     updateMenu(MENU_WITHOUT_SEARCH);
                     return true;
                 case R.id.navigation_messages:
                     updateMenu(MENU_WITHOUT_SEARCH);
                     return true;
                 case R.id.navigation_search:
+                    //the search menu was opened so an instance of SearchFragment is inflated and inserted into the UI
+                    SearchFragment searchFragment = new SearchFragment();
+                    FragmentTransaction searchFragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    searchFragmentTransaction.replace(R.id.fragment_area,searchFragment);
                     updateMenu(MENU_WITH_SEARCH);
+                    searchFragmentTransaction.commit();
                     return true;
             }
             return false;
@@ -57,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Test");
         setSupportActionBar(toolbar);
     }
 
@@ -69,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
     }
     private void updateMenu(final int type)
     {
-        //the app is meant to have dynamically change
+        //the app is meant to have dynamically changing menu so this function configures different menu
+        //types to use in the application. Called on startup in onCreateOptionsMenu and when the bottom navigation item is clicked
         if(menu == null) return;
         MenuInflater menuInflater = getMenuInflater();
         menu.clear();
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 public boolean onQueryTextSubmit(String s) {
                     Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
                     hideKeyboard();
+                    //the search goes here
                     return true;
                 }
 
@@ -104,6 +110,5 @@ public class MainActivity extends AppCompatActivity {
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
-
     }
 }
