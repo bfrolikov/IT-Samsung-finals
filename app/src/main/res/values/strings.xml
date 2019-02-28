@@ -13,4 +13,6 @@
     <string name="requests">Требования к клиентам</string>
     <string name="enter_requests">Введите ваши условия проведения экскурсии</string>
     <string name="settings">Настройки</string>
+    <string name="search_hint">Поиск пользователей</string>
+    <string name="search_title">Search</string>
 </resources>
