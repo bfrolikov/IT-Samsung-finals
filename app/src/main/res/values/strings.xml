@@ -12,4 +12,5 @@
     <string name="enter_city">Введите город</string>
     <string name="requests">Требования к клиентам</string>
     <string name="enter_requests">Введите ваши условия проведения экскурсии</string>
+    <string name="settings">Настройки</string>
 </resources>
