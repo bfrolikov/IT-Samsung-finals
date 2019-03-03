@@ -24,15 +24,14 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_marginStart">4dp</item>
         <item name="android:layout_marginBottom">2dp</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">15sp</item>
     </style>
-    <style name="ExitButtonStyle">
+    <style name="AccentButtonStyle">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Button</item>
         <item name="android:backgroundTint">@color/colorAccent</item>
         <item name="android:text">@string/exit</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/colorIcons</item>
+        <item name="android:textSize">13sp</item>
     </style>
     <style name="EntryFieldStyle">
         <item name="android:textColor">@color/colorPrimaryText</item>
@@ -60,6 +59,15 @@
         <item name="android:layout_height">?attr/actionBarSize</item>
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
         <item name="android:background">@color/colorPrimary</item>
+    </style>
+    <style name="LoginStyle" parent="TextAppearance.MaterialComponents.Headline2">
+        <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:textSize">47sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="ButtonStyle" parent="AccentButtonStyle">
+        <item name="android:backgroundTint">@color/colorPrimary</item>
     </style>
 
 

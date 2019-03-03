@@ -15,4 +15,11 @@
     <string name="settings">Настройки</string>
     <string name="search_hint">Поиск пользователей</string>
     <string name="search_title">Search</string>
+    <string name="login">Вход в систему</string>
+    <string name="loginButton">Войти</string>
+    <string name="registerButton">Регистрация</string>
+    <string name="email">Email</string>
+    <string name="password">Пароль</string>
+    <string name="email_hint">example@gmail.com</string>
+    <string name="password_hint">qwerty</string>
 </resources>
