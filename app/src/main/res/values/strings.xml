@@ -22,4 +22,5 @@
     <string name="password">Пароль</string>
     <string name="email_hint">example@gmail.com</string>
     <string name="password_hint">qwerty</string>
+    <string name="register">Регистрация</string>
 </resources>
