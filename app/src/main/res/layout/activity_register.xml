@@ -1,56 +1,221 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RegisterActivity">
+    android:scrollbars="vertical">
 
-    <TextView
-        android:id="@+id/login_title3"
-        style="@style/LoginStyle"
-        android:layout_width="0dp"
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="8dp"
-        android:text="@string/register"
-        android:textColor="@color/colorPrimaryText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/register_toolbar" />
+        tools:context=".RegisterActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/register_toolbar"
-        style="@style/ToolBarStyle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <EditText
+            android:id="@+id/register_requests"
+            style="@style/BigEntryFieldStyle"
+            android:layout_width="0dp"
+            android:layout_marginTop="60dp"
+            android:hint="@string/hint_requests"
+            app:layout_constraintEnd_toEndOf="@+id/register_city"
+            app:layout_constraintStart_toStartOf="@+id/register_city"
+            app:layout_constraintTop_toBottomOf="@+id/register_city"
+            tools:text="5 бутылок водки" />
 
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="64dp"
-        android:layout_marginEnd="60dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.09"
-        app:layout_constraintStart_toStartOf="@+id/login_title3"
-        app:layout_constraintTop_toBottomOf="@+id/login_title3" />
+        <EditText
+            android:id="@+id/register_city"
+            style="@style/EntryFieldStyle"
+            android:layout_width="0dp"
+            android:layout_marginTop="60dp"
+            android:hint="@string/city_hint"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="@+id/register_country"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/register_country"
+            app:layout_constraintTop_toBottomOf="@+id/register_country"
+            tools:text="Ярославль" />
 
-    <EditText
-        android:id="@+id/editText2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
-        app:layout_constraintEnd_toEndOf="@+id/editText"
-        app:layout_constraintStart_toStartOf="@+id/editText"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
+        <EditText
+            android:id="@+id/register_country"
+            style="@style/EntryFieldStyle"
+            android:layout_width="0dp"
+            android:layout_marginTop="60dp"
+            android:hint="@string/country_hint"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="@+id/register_social_media"
+            app:layout_constraintStart_toStartOf="@+id/register_social_media"
+            app:layout_constraintTop_toBottomOf="@+id/register_social_media"
+            tools:text="Ботсвана" />
 
-</android.support.constraint.ConstraintLayout>
+        <EditText
+            android:id="@+id/register_social_media"
+            style="@style/EntryFieldStyle"
+            android:layout_width="0dp"
+            android:layout_marginTop="60dp"
+            android:hint="@string/social_meida_hint"
+            android:inputType="textUri"
+            app:layout_constraintEnd_toEndOf="@+id/register_password_repeat"
+            app:layout_constraintStart_toStartOf="@+id/register_password_repeat"
+            app:layout_constraintTop_toBottomOf="@+id/register_password_repeat"
+            tools:text="vk.com/helloworld" />
+
+        <EditText
+            android:id="@+id/register_password_repeat"
+            style="@style/EntryFieldStyle"
+            android:layout_width="0dp"
+            android:layout_marginTop="60dp"
+            android:hint="@string/password_hint"
+            android:inputType="textPassword"
+            app:layout_constraintEnd_toEndOf="@+id/register_password"
+            app:layout_constraintStart_toStartOf="@+id/register_password"
+            app:layout_constraintTop_toBottomOf="@+id/register_password"
+            tools:text="Name" />
+
+        <EditText
+            android:id="@+id/register_password"
+            style="@style/EntryFieldStyle"
+            android:layout_width="0dp"
+            android:layout_marginTop="60dp"
+            android:hint="@string/password_hint"
+            android:inputType="textPassword"
+            app:layout_constraintEnd_toEndOf="@+id/register_email"
+            app:layout_constraintStart_toStartOf="@+id/register_email"
+            app:layout_constraintTop_toBottomOf="@+id/register_email"
+            tools:text="Name" />
+
+        <EditText
+            android:id="@+id/register_email"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:ems="10"
+            android:hint="@string/email_hint"
+            android:inputType="textEmailAddress"
+            app:layout_constraintEnd_toEndOf="@+id/register_surname"
+            app:layout_constraintStart_toStartOf="@+id/register_surname"
+            app:layout_constraintTop_toBottomOf="@+id/register_surname"
+            tools:text="123@example.com" />
+
+        <TextView
+            android:id="@+id/register_title"
+            style="@style/LoginStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/register"
+            android:textColor="@color/colorPrimaryText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/register_toolbar" />
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/register_toolbar"
+            style="@style/ToolBarStyle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/register_name"
+            style="@style/EntryFieldStyle"
+            android:layout_width="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="64dp"
+            android:layout_marginEnd="60dp"
+            android:hint="@string/name_hint"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/register_title"
+            app:layout_constraintTop_toBottomOf="@+id/register_title"
+            tools:text="Иван" />
+
+        <EditText
+            android:id="@+id/register_surname"
+            style="@style/EntryFieldStyle"
+            android:layout_width="0dp"
+            android:layout_marginTop="60dp"
+            android:hint="@string/surname_hint"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="@+id/register_name"
+            app:layout_constraintStart_toStartOf="@+id/register_name"
+            app:layout_constraintTop_toBottomOf="@+id/register_name"
+            tools:text="Иванов" />
+
+        <TextView
+            android:id="@+id/register_caption_name"
+            style="@style/captionStyle"
+            android:text="@string/name"
+            app:layout_constraintBottom_toTopOf="@+id/register_name"
+            app:layout_constraintStart_toStartOf="@+id/register_name" />
+
+        <TextView
+            android:id="@+id/register_caption_surname"
+            style="@style/captionStyle"
+            android:text="@string/surname"
+            app:layout_constraintBottom_toTopOf="@+id/register_surname"
+            app:layout_constraintStart_toStartOf="@+id/register_surname" />
+
+        <TextView
+            android:id="@+id/register_caption_email"
+            style="@style/captionStyle"
+            android:text="@string/email"
+            app:layout_constraintBottom_toTopOf="@+id/register_email"
+            app:layout_constraintStart_toStartOf="@+id/register_email" />
+
+        <TextView
+            android:id="@+id/register_caption_password"
+            style="@style/captionStyle"
+            android:text="@string/password"
+            app:layout_constraintBottom_toTopOf="@+id/register_password"
+            app:layout_constraintStart_toStartOf="@+id/register_password" />
+
+        <TextView
+            android:id="@+id/register_caption_repeat_password"
+            style="@style/captionStyle"
+            android:text="@string/repeat_password"
+            app:layout_constraintBottom_toTopOf="@+id/register_password_repeat"
+            app:layout_constraintStart_toStartOf="@+id/register_password_repeat" />
+
+        <TextView
+            android:id="@+id/register_caption_social_media"
+            style="@style/captionStyle"
+            android:text="@string/social_media_link"
+            app:layout_constraintBottom_toTopOf="@+id/register_social_media"
+            app:layout_constraintStart_toStartOf="@+id/register_social_media" />
+
+        <TextView
+            android:id="@+id/register_caption_country"
+            style="@style/captionStyle"
+            android:text="@string/country"
+            app:layout_constraintBottom_toTopOf="@+id/register_country"
+            app:layout_constraintStart_toStartOf="@+id/register_country" />
+
+        <TextView
+            android:id="@+id/register_caption_city"
+            style="@style/captionStyle"
+            android:text="@string/city"
+            app:layout_constraintBottom_toTopOf="@+id/register_city"
+            app:layout_constraintStart_toStartOf="@+id/register_city" />
+
+        <TextView
+            android:id="@+id/register_caption_requests"
+            style="@style/captionStyle"
+            android:text="@string/requests"
+            app:layout_constraintBottom_toTopOf="@+id/register_requests"
+            app:layout_constraintStart_toStartOf="@+id/register_requests" />
+
+        <Button
+            android:id="@+id/register_register_button"
+            style="@style/AccentButtonStyle"
+            android:layout_width="130dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="52dp"
+            android:layout_marginEnd="28dp"
+            android:text="@string/register"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/register_requests" />
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

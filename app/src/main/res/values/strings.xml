@@ -11,7 +11,7 @@
     <string name="enter_country">Введите страну</string>
     <string name="enter_city">Введите город</string>
     <string name="requests">Требования к клиентам</string>
-    <string name="enter_requests">Введите ваши условия проведения экскурсии</string>
+    <string name="hint_requests">Введите ваши условия проведения экскурсии</string>
     <string name="settings">Настройки</string>
     <string name="search_hint">Поиск пользователей</string>
     <string name="search_title">Search</string>
@@ -20,7 +20,15 @@
     <string name="registerButton">Регистрация</string>
     <string name="email">Email</string>
     <string name="password">Пароль</string>
+    <string name="repeat_password">Повторите пароль</string>
     <string name="email_hint">example@gmail.com</string>
     <string name="password_hint">qwerty</string>
     <string name="register">Регистрация</string>
+    <string name="name">Имя</string>
+    <string name="surname">Фамилия</string>
+    <string name="name_hint">Введите имя</string>
+    <string name="surname_hint">Введите фамилию</string>
+    <string name="social_meida_hint">Введите ссылку на соцсеть</string>
+    <string name="country_hint">Введите вашу страну</string>
+    <string name="city_hint">Введите ваш город</string>
 </resources>

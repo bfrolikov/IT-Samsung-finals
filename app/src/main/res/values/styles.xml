@@ -25,11 +25,11 @@
         <item name="android:layout_marginStart">4dp</item>
         <item name="android:layout_marginBottom">2dp</item>
         <item name="android:textSize">15sp</item>
+        <item name="android:ems">15</item>
     </style>
     <style name="AccentButtonStyle">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Button</item>
         <item name="android:backgroundTint">@color/colorAccent</item>
-        <item name="android:text">@string/exit</item>
         <item name="android:textColor">@color/colorIcons</item>
         <item name="android:textSize">13sp</item>
     </style>
@@ -68,6 +68,12 @@
     </style>
     <style name="ButtonStyle" parent="AccentButtonStyle">
         <item name="android:backgroundTint">@color/colorPrimary</item>
+    </style>
+    <style name="BigEntryFieldStyle" parent="EntryFieldStyle">
+        <item name="android:inputType">textMultiLine</item>
+        <item name="android:lines">6</item>
+        <item name="android:maxLines">10</item>
+        <item name="android:ems">15</item>
     </style>
 
 

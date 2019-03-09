@@ -70,6 +70,7 @@
     <Button
         android:id="@+id/prof_exit_button"
         style="@style/AccentButtonStyle"
+        android:text="@string/exit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -118,13 +119,9 @@
 
     <EditText
         android:id="@+id/prof_requests_edit"
-        style="@style/EntryFieldStyle"
+        style="@style/BigEntryFieldStyle"
         android:layout_marginTop="36dp"
-        android:ems="15"
-        android:hint="@string/enter_requests"
-        android:inputType="textMultiLine"
-        android:lines="6"
-        android:maxLines="10"
+        android:hint="@string/hint_requests"
         app:layout_constraintEnd_toEndOf="@+id/prof_city_edit"
         app:layout_constraintHorizontal_bias="0.009"
         app:layout_constraintStart_toStartOf="@+id/prof_city_edit"
