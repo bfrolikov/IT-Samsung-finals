@@ -112,4 +112,3 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
-//TODO 1 look up firebase
