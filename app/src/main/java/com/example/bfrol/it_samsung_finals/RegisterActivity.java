@@ -8,6 +8,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
@@ -31,7 +33,19 @@ public class RegisterActivity extends AppCompatActivity {
                         .addOnCompleteListener(this,task -> {
                             if(task.isSuccessful())
                             {
-                                openMainActivity();
+                                //successfully added user with email and password to the Firebase Auth system which is NOT the database
+                                FirebaseFirestore database = FirebaseFirestore.getInstance(); //get an instance of the Cloud Firestore Database
+                                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                                database.collection("users").document(firebaseUser.getUid()).set(constructUser()).//add current user to the database
+                                        addOnSuccessListener(aVoid -> {
+                                            openMainActivity(); //successfully added user to the database
+                                        }).
+                                        addOnFailureListener(e -> {
+                                            Toast.makeText(getApplicationContext(),"Register failed",Toast.LENGTH_LONG).show();
+                                            //adding user to the database failed
+                                            firebaseUser.delete();//delete user record in the Firebase Auth
+                                        });
+
                             }
                             else
                             {
@@ -48,5 +62,17 @@ public class RegisterActivity extends AppCompatActivity {
         openMainActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);// clear activity history
         startActivity(openMainActivity);
         finish();
+    }
+    private User constructUser()
+    {
+        //Constructs a new User instance based on the UI
+        String name = ((EditText)findViewById(R.id.register_name)).getText().toString();
+        String lastName = ((EditText)findViewById(R.id.register_surname)).getText().toString();
+        String socialMedia = ((EditText)findViewById(R.id.register_social_media)).getText().toString();
+        String country = ((EditText)findViewById(R.id.register_country)).getText().toString();
+        String city = ((EditText)findViewById(R.id.register_city)).getText().toString();
+        String demands = ((EditText)findViewById(R.id.register_demands)).getText().toString();
+        String profileUrl =""; //TODO image query
+        return new User(name,lastName,socialMedia,country,city,demands,profileUrl);
     }
 }

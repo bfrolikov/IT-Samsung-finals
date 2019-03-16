@@ -12,13 +12,13 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/prof_city"
+        app:layout_constraintEnd_toStartOf="@+id/prof_city_label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/user_placeholder" />
 
     <TextView
-        android:id="@+id/prof_username"
+        android:id="@+id/prof_username_label"
         style="@style/UsernameStyle"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
@@ -27,12 +27,12 @@
         tools:text="Иван Иванов" />
 
     <TextView
-        android:id="@+id/prof_city"
+        android:id="@+id/prof_city_label"
         style="@style/CityStyle"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@+id/prof_profile_image"
-        app:layout_constraintTop_toBottomOf="@+id/prof_username"
+        app:layout_constraintTop_toBottomOf="@+id/prof_username_label"
         tools:text="Нефтепавловск-Камчатский" />
 
     <ImageView
@@ -41,20 +41,20 @@
         android:layout_height="0dp"
         android:layout_marginStart="5dp"
         android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/prof_city"
+        app:layout_constraintBottom_toBottomOf="@+id/prof_city_label"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/prof_city"
-        app:layout_constraintTop_toTopOf="@+id/prof_city"
+        app:layout_constraintStart_toEndOf="@+id/prof_city_label"
+        app:layout_constraintTop_toTopOf="@+id/prof_city_label"
         app:srcCompat="@drawable/flag_placeholder" />
 
     <EditText
-        android:id="@+id/prof_social_edit"
+        android:id="@+id/prof_social_media"
         style="@style/EntryFieldStyle"
         android:layout_marginTop="64dp"
         android:hint="@string/enter_social_media"
         android:inputType="textUri"
         app:layout_constraintStart_toStartOf="@+id/prof_profile_image"
-        app:layout_constraintTop_toBottomOf="@+id/prof_city"
+        app:layout_constraintTop_toBottomOf="@+id/prof_city_label"
         tools:text="vk.com/sobaka" />
 
     <TextView
@@ -62,77 +62,77 @@
         style="@style/captionStyle"
         android:layout_marginTop="8dp"
         android:text="@string/social_media_link"
-        app:layout_constraintBottom_toTopOf="@+id/prof_social_edit"
-        app:layout_constraintStart_toStartOf="@+id/prof_social_edit"
+        app:layout_constraintBottom_toTopOf="@+id/prof_social_media"
+        app:layout_constraintStart_toStartOf="@+id/prof_social_media"
         app:layout_constraintTop_toBottomOf="@+id/prof_profile_image"
         app:layout_constraintVertical_bias="1.0" />
 
     <Button
-        android:id="@+id/prof_exit_button"
+        android:id="@+id/prof_sign_out_button"
         style="@style/AccentButtonStyle"
-        android:text="@string/exit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
+        android:text="@string/exit"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/prof_requests_edit" />
+        app:layout_constraintTop_toBottomOf="@+id/prof_demands" />
 
     <EditText
-        android:id="@+id/prof_country_edit"
+        android:id="@+id/prof_country"
         style="@style/EntryFieldStyle"
         android:layout_marginTop="36dp"
         android:hint="@string/enter_country"
         android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="@+id/prof_social_edit"
+        app:layout_constraintEnd_toEndOf="@+id/prof_social_media"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/prof_social_edit"
-        app:layout_constraintTop_toBottomOf="@+id/prof_social_edit"
+        app:layout_constraintStart_toStartOf="@+id/prof_social_media"
+        app:layout_constraintTop_toBottomOf="@+id/prof_social_media"
         tools:text="Российкая республика" />
 
     <TextView
         android:id="@+id/prof_country_caption"
         style="@style/captionStyle"
         android:text="@string/country"
-        app:layout_constraintBottom_toTopOf="@+id/prof_country_edit"
-        app:layout_constraintStart_toStartOf="@+id/prof_country_edit" />
+        app:layout_constraintBottom_toTopOf="@+id/prof_country"
+        app:layout_constraintStart_toStartOf="@+id/prof_country" />
 
     <EditText
-        android:id="@+id/prof_city_edit"
+        android:id="@+id/prof_city"
         style="@style/EntryFieldStyle"
         android:layout_marginTop="36dp"
         android:hint="@string/enter_city"
         android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="@+id/prof_country_edit"
+        app:layout_constraintEnd_toEndOf="@+id/prof_country"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/prof_country_edit"
-        app:layout_constraintTop_toBottomOf="@+id/prof_country_edit"
+        app:layout_constraintStart_toStartOf="@+id/prof_country"
+        app:layout_constraintTop_toBottomOf="@+id/prof_country"
         tools:text="Йорк" />
 
     <TextView
         android:id="@+id/prof_city_caption"
         style="@style/captionStyle"
         android:text="@string/city"
-        app:layout_constraintBottom_toTopOf="@+id/prof_city_edit"
-        app:layout_constraintStart_toStartOf="@+id/prof_city_edit" />
+        app:layout_constraintBottom_toTopOf="@+id/prof_city"
+        app:layout_constraintStart_toStartOf="@+id/prof_city" />
 
 
     <EditText
-        android:id="@+id/prof_requests_edit"
+        android:id="@+id/prof_demands"
         style="@style/BigEntryFieldStyle"
         android:layout_marginTop="36dp"
         android:hint="@string/hint_requests"
-        app:layout_constraintEnd_toEndOf="@+id/prof_city_edit"
+        app:layout_constraintEnd_toEndOf="@+id/prof_city"
         app:layout_constraintHorizontal_bias="0.009"
-        app:layout_constraintStart_toStartOf="@+id/prof_city_edit"
-        app:layout_constraintTop_toBottomOf="@+id/prof_city_edit"
+        app:layout_constraintStart_toStartOf="@+id/prof_city"
+        app:layout_constraintTop_toBottomOf="@+id/prof_city"
         tools:text="5 бутылок водки" />
 
     <TextView
         style="@style/captionStyle"
         android:layout_marginBottom="8dp"
         android:text="@string/requests"
-        app:layout_constraintBottom_toTopOf="@+id/prof_requests_edit"
-        app:layout_constraintStart_toStartOf="@+id/prof_requests_edit" />
+        app:layout_constraintBottom_toTopOf="@+id/prof_demands"
+        app:layout_constraintStart_toStartOf="@+id/prof_demands" />
 
 </android.support.constraint.ConstraintLayout>

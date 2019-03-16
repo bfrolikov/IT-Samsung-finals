@@ -2,6 +2,7 @@ package com.example.bfrol.it_samsung_finals;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -19,7 +20,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.google.firebase.auth.FirebaseAuth;
+
+public class MainActivity extends AppCompatActivity implements UserProfileFragment.UserSignOutListener {
     public static final int MENU_WITH_SEARCH = 0;
     public static final int MENU_WITHOUT_SEARCH = 1;
     private Toolbar toolbar;
@@ -110,5 +113,15 @@ public class MainActivity extends AppCompatActivity {
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+
+    @Override
+    public void onUserSignOut() {
+        //user signed out in the fragment
+        FirebaseAuth.getInstance().signOut();
+        Intent openLoginActivity = new Intent(this,LoginActivity.class);
+        openLoginActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);// clear activity history
+        startActivity(openLoginActivity);
+        finish();
     }
 }

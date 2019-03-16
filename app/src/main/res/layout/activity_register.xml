@@ -12,7 +12,7 @@
         tools:context=".RegisterActivity">
 
         <EditText
-            android:id="@+id/register_requests"
+            android:id="@+id/register_demands"
             style="@style/BigEntryFieldStyle"
             android:layout_width="0dp"
             android:layout_marginTop="60dp"
@@ -203,8 +203,8 @@
             android:id="@+id/register_caption_requests"
             style="@style/captionStyle"
             android:text="@string/requests"
-            app:layout_constraintBottom_toTopOf="@+id/register_requests"
-            app:layout_constraintStart_toStartOf="@+id/register_requests" />
+            app:layout_constraintBottom_toTopOf="@+id/register_demands"
+            app:layout_constraintStart_toStartOf="@+id/register_demands" />
 
         <Button
             android:id="@+id/register_register_button"
@@ -215,7 +215,7 @@
             android:layout_marginEnd="28dp"
             android:text="@string/register"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/register_requests" />
+            app:layout_constraintTop_toBottomOf="@+id/register_demands" />
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>
