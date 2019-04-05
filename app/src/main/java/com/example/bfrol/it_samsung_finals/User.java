@@ -9,9 +9,10 @@ public class User {
     private String city;
     private String demands;
     private String profileImageUrl;
+    private int rating;
     public User() {}
 
-    public User(String firstName, String lastName, String socialMediaLink, String country, String city, String demands, String profileImageUrl) {
+    public User(String firstName, String lastName, String socialMediaLink, String country, String city, String demands, String profileImageUrl,int rating) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.socialMediaLink = socialMediaLink;
@@ -19,6 +20,7 @@ public class User {
         this.city = city;
         this.demands = demands;
         this.profileImageUrl = profileImageUrl;
+        this.rating = rating;
     }
 
     public String getFirstName() {
@@ -47,5 +49,13 @@ public class User {
 
     public String getProfileImageUrl() {
         return profileImageUrl;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 }

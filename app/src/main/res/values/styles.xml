@@ -75,6 +75,9 @@
         <item name="android:maxLines">10</item>
         <item name="android:ems">15</item>
     </style>
+    <style name="ProgressBarStyle" parent="Widget.AppCompat.ProgressBar">
+        <item name="android:indeterminateTint">@color/colorAccent</item>
+    </style>
 
 
 </resources>

@@ -21,12 +21,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity implements UserProfileFragment.UserSignOutListener {
     public static final int MENU_WITH_SEARCH = 0;
     public static final int MENU_WITHOUT_SEARCH = 1;
     private Toolbar toolbar;
     private Menu menu;
+    static User currentUser; //a static field for the user class stored in cache
+    FirebaseAuth firebaseAuth;
+    FirebaseFirestore database;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -36,10 +41,18 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
             switch (item.getItemId()) {
                 case R.id.navigation_profile:
                     //the user profile menu was opened so an instance of UserProfileFragment is inflated and inserted into the UI
-                    UserProfileFragment userProfileFragment = new UserProfileFragment();
-                    FragmentTransaction userProfileFragmentTransaction = getSupportFragmentManager().beginTransaction();
-                    userProfileFragmentTransaction.replace(R.id.fragment_area,userProfileFragment);
-                    userProfileFragmentTransaction.commit();
+                    //in case the user is stored in cache
+                    if(currentUser!=null)
+                        constructFragment(new UserProfileFragment());
+                    else
+                    {
+                        constructFragment(new ProgressBarFragment());
+                        DocumentReference docRef = database.collection("users").document(firebaseAuth.getCurrentUser().getUid());
+                        docRef.get().addOnSuccessListener(documentSnapshot -> {
+                            currentUser = documentSnapshot.toObject(User.class);
+                            constructFragment(new UserProfileFragment());
+                        });
+                    }
                     updateMenu(MENU_WITHOUT_SEARCH);
                     return true;
                 case R.id.navigation_messages:
@@ -47,11 +60,8 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
                     return true;
                 case R.id.navigation_search:
                     //the search menu was opened so an instance of SearchFragment is inflated and inserted into the UI
-                    SearchFragment searchFragment = new SearchFragment();
-                    FragmentTransaction searchFragmentTransaction = getSupportFragmentManager().beginTransaction();
-                    searchFragmentTransaction.replace(R.id.fragment_area,searchFragment);
+                    constructFragment(new SearchFragment());
                     updateMenu(MENU_WITH_SEARCH);
-                    searchFragmentTransaction.commit();
                     return true;
             }
             return false;
@@ -66,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        database = FirebaseFirestore.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -123,5 +135,12 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         openLoginActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);// clear activity history
         startActivity(openLoginActivity);
         finish();
+    }
+    void constructFragment(Fragment fragment)
+    {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_area,fragment);
+        fragmentTransaction.commit();
+        //helps construct the fragment
     }
 }

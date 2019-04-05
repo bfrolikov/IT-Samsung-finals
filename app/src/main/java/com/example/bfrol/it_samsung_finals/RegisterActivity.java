@@ -73,6 +73,6 @@ public class RegisterActivity extends AppCompatActivity {
         String city = ((EditText)findViewById(R.id.register_city)).getText().toString();
         String demands = ((EditText)findViewById(R.id.register_demands)).getText().toString();
         String profileUrl =""; //TODO image query
-        return new User(name,lastName,socialMedia,country,city,demands,profileUrl);
+        return new User(name,lastName,socialMedia,country,city,demands,profileUrl,0);
     }
 }
