@@ -38,6 +38,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                                 database.collection("users").document(firebaseUser.getUid()).set(constructUser()).//add current user to the database
                                         addOnSuccessListener(aVoid -> {
+                                            MainActivity.currentUser = null;
                                             openMainActivity(); //successfully added user to the database
                                         }).
                                         addOnFailureListener(e -> {

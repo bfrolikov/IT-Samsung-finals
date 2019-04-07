@@ -41,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
                         //TODO implement snackbar with information about the login status
                         if (task.isSuccessful())
                         {
+                            MainActivity.currentUser = null;
                             //authentication successful
                             openMainActivity();
                         }
