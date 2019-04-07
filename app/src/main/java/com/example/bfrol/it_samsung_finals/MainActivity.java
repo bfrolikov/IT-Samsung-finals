@@ -10,6 +10,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -20,15 +22,21 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements UserProfileFragment.UserSignOutListener {
     public static final int MENU_WITH_SEARCH = 0;
     public static final int MENU_WITHOUT_SEARCH = 1;
     private Toolbar toolbar;
     private Menu menu;
+    static CustomRecyclerViewAdapter adapter;
     static User currentUser; //a static field for the user class stored in cache
     FirebaseAuth firebaseAuth;
     FirebaseFirestore database;
@@ -78,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         setSupportActionBar(toolbar);
         database = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
+        adapter = new CustomRecyclerViewAdapter(new ArrayList<>());
     }
 
     @Override
@@ -102,9 +111,16 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
             menuSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
-                    Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
                     hideKeyboard();
                     //the search goes here
+                    constructFragment(new ProgressBarFragment());
+                    database.collection("users").whereEqualTo("firstName",s)
+                            .get()
+                            .addOnSuccessListener(querySnapshot -> {
+                                adapter.setDataArray((ArrayList<DocumentSnapshot>)querySnapshot.getDocuments());
+                                adapter.notifyDataSetChanged();
+                                constructFragment(new SearchFragment());
+                            }); //TODO fail handling
                     return true;
                 }
 
@@ -125,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+
     }
 
     @Override
