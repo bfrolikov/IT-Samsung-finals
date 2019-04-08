@@ -1,14 +1,24 @@
 package com.example.bfrol.it_samsung_finals;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.UriMatcher;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,11 +39,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.File;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements UserProfileFragment.UserSignOutListener {
-    public static final int MENU_WITH_SEARCH = 0;
-    public static final int MENU_WITHOUT_SEARCH = 1;
+public class MainActivity extends AppCompatActivity implements UserProfileFragment.ProfileFragmentInterface {
+    static final int MENU_WITH_SEARCH = 0;
+    static final int MENU_WITHOUT_SEARCH = 1;
+    static final int CAMERA_REQUEST_CODE = 0;
     private Toolbar toolbar;
     private Menu menu;
     static CustomRecyclerViewAdapter adapter;
@@ -87,6 +99,35 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         database = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
         adapter = new CustomRecyclerViewAdapter(new ArrayList<>());
+
+    }
+    private int checkForPermission(String permission)
+    {
+        return ContextCompat.checkSelfPermission(this, permission);
+    }
+    private void requestRuntimePermission(String permission,int requestCode) {
+    /*    if(ActivityCompat.shouldShowRequestPermissionRationale(this,permission))
+        {
+            Toast.makeText(this,explanation,Toast.LENGTH_LONG).show();
+        }*/
+        ActivityCompat.requestPermissions(this,new String[]{permission},requestCode);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode)
+        {
+            case CAMERA_REQUEST_CODE:
+            {
+              if(grantResults.length==0 || grantResults[0]==PackageManager.PERMISSION_DENIED)
+              {
+                  if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA))
+                      Toast.makeText(this,getString(R.string.camera_permission_explanation),Toast.LENGTH_LONG).show();
+                  else
+                      Toast.makeText(this,getString(R.string.camera_permission_denied_explanation),Toast.LENGTH_SHORT).show();
+              }
+            }
+        }
     }
 
     @Override
@@ -133,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         else if(type == MENU_WITHOUT_SEARCH)
         {
             menuInflater.inflate(R.menu.toolbar_menu_without_search,menu);
+            toolbar.setTitle(" ");
         }
     }
     public void hideKeyboard() {
@@ -153,6 +195,29 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         startActivity(openLoginActivity);
         finish();
     }
+
+    @Override
+    public void onCameraOpened() {
+        if (checkForPermission(Manifest.permission.CAMERA)==PackageManager.PERMISSION_DENIED)
+        {
+            requestRuntimePermission(Manifest.permission.CAMERA,CAMERA_REQUEST_CODE);
+            return;
+            //if the user hasn't given the permission to use the camera
+        }
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File file = new File(Environment.getExternalStorageDirectory(),"file"+String.valueOf(System.currentTimeMillis())+".jpg");
+        Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".fileprovider",file);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
+        cameraIntent.putExtra("return-data",true);
+        cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivityForResult(cameraIntent,CAMERA_REQUEST_CODE);
+    }
+
+    @Override
+    public void onGalleryOpened() {
+
+    }
+
     void constructFragment(Fragment fragment)
     {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

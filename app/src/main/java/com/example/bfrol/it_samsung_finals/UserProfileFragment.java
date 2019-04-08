@@ -1,7 +1,9 @@
 package com.example.bfrol.it_samsung_finals;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,7 +24,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class UserProfileFragment extends Fragment {
-    private UserSignOutListener signOutCallback;//interface to tell the activity to close when the user has logged out
+    private ProfileFragmentInterface activityInterface;//interface to tell the activity to close when the user has logged out
     @Nullable
     @Override
     //this fragment is responsible for the user profile
@@ -35,7 +38,7 @@ public class UserProfileFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof Activity) {
             Activity attachActivity = (Activity) context;
-            signOutCallback = (UserSignOutListener) attachActivity;
+            activityInterface = (ProfileFragmentInterface) attachActivity;
         }
     }
 
@@ -44,12 +47,14 @@ public class UserProfileFragment extends Fragment {
         Button signOutButton = view.findViewById(R.id.prof_sign_out_button);
         signOutButton.setOnClickListener(v ->
         {
-            signOutCallback.onUserSignOut();//user has signed out, signal the activity
+            activityInterface.onUserSignOut();//user has signed out, signal the activity
         });
     }
 
-    public interface UserSignOutListener {
+    public interface ProfileFragmentInterface {
         void onUserSignOut();
+        void onCameraOpened();
+        void onGalleryOpened();
     }
 
     private void updateUI(View uiView) {
@@ -59,5 +64,25 @@ public class UserProfileFragment extends Fragment {
         ((EditText)uiView.findViewById(R.id.prof_social_media)).setText(MainActivity.currentUser.getSocialMediaLink());
         ((EditText)uiView.findViewById(R.id.prof_country)).setText(MainActivity.currentUser.getCountry());
         ((EditText)uiView.findViewById(R.id.prof_demands)).setText(MainActivity.currentUser.getDemands());
+        uiView.findViewById(R.id.prof_profile_image).setOnClickListener(view-> openImageEditOptionsDialog());
+    }
+    private void openImageEditOptionsDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final String[] options = {getString(R.string.choose_from_gallery),getString(R.string.take_photo)};
+        builder.setTitle(getString(R.string.dialog_title));
+        builder.setItems(options, (dialog, which) -> {
+            if(which == 0)
+            {
+                activityInterface.onGalleryOpened();
+                //choose from gallery
+            }
+            else if (which==1)
+            {
+                activityInterface.onCameraOpened();
+                //take photo
+            }
+        });
+        builder.create().show();
     }
 }

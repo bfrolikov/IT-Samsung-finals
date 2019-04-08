@@ -31,4 +31,9 @@
     <string name="social_meida_hint">Введите ссылку на соцсеть</string>
     <string name="country_hint">Введите вашу страну</string>
     <string name="city_hint">Введите ваш город</string>
+    <string name="dialog_title">Фотография</string>
+    <string name="choose_from_gallery">Выбрать из галереи</string>
+    <string name="take_photo">Сделать снимок</string>
+    <string name="camera_permission_explanation">Доступ к камере необходим для того, чтобы сделать снимок</string>
+    <string name="camera_permission_denied_explanation">Приложение не сможет делать фотографии</string>
 </resources>
