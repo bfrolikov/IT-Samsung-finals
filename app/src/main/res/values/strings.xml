@@ -36,4 +36,6 @@
     <string name="take_photo">Сделать снимок</string>
     <string name="camera_permission_explanation">Доступ к камере необходим для того, чтобы сделать снимок</string>
     <string name="camera_permission_denied_explanation">Приложение не сможет делать фотографии</string>
+    <string name="select_from_gallery">Выберите фото из галереи</string>
+    <string name="error">Ошибка</string>
 </resources>

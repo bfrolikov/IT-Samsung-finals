@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,6 +24,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.theartofdev.edmodo.cropper.CropImage;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserProfileFragment extends Fragment {
     private ProfileFragmentInterface activityInterface;//interface to tell the activity to close when the user has logged out
@@ -65,6 +70,7 @@ public class UserProfileFragment extends Fragment {
         ((EditText)uiView.findViewById(R.id.prof_country)).setText(MainActivity.currentUser.getCountry());
         ((EditText)uiView.findViewById(R.id.prof_demands)).setText(MainActivity.currentUser.getDemands());
         uiView.findViewById(R.id.prof_profile_image).setOnClickListener(view-> openImageEditOptionsDialog());
+        ((CircleImageView)uiView.findViewById(R.id.prof_profile_image)).setImageDrawable(MainActivity.userImage);
     }
     private void openImageEditOptionsDialog()
     {
@@ -84,5 +90,10 @@ public class UserProfileFragment extends Fragment {
             }
         });
         builder.create().show();
+    }
+    void changeImage()
+    {
+        if(getView()!=null)
+            ((CircleImageView)getView().findViewById(R.id.prof_profile_image)).setImageDrawable(MainActivity.userImage);
     }
 }

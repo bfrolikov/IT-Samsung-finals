@@ -6,12 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.UriMatcher;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -38,16 +42,25 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements UserProfileFragment.ProfileFragmentInterface {
     static final int MENU_WITH_SEARCH = 0;
     static final int MENU_WITHOUT_SEARCH = 1;
     static final int CAMERA_REQUEST_CODE = 0;
+    static final int GALLERY_REQEST_CODE = 1;
+    static final String USER_PROFILE_FRAGMENT_TAG = "userpf";
     private Toolbar toolbar;
     private Menu menu;
+    private Uri imageUri;
+    static Drawable userImage;
     static CustomRecyclerViewAdapter adapter;
     static User currentUser; //a static field for the user class stored in cache
     FirebaseAuth firebaseAuth;
@@ -99,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         database = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
         adapter = new CustomRecyclerViewAdapter(new ArrayList<>());
+        userImage = getDrawable(R.drawable.user_placeholder);
 
     }
     private int checkForPermission(String permission)
@@ -205,23 +219,67 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
             //if the user hasn't given the permission to use the camera
         }
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File file = new File(Environment.getExternalStorageDirectory(),"file"+String.valueOf(System.currentTimeMillis())+".jpg");
-        Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".fileprovider",file);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
-        cameraIntent.putExtra("return-data",true);
+        File file = new File(getExternalCacheDir(),"file"+String.valueOf(System.currentTimeMillis())+".jpg");
+        imageUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".fileprovider",file);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
+       // cameraIntent.putExtra("return-data",true);
         cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         startActivityForResult(cameraIntent,CAMERA_REQUEST_CODE);
     }
 
     @Override
     public void onGalleryOpened() {
+        Intent openGalleryIntent = new Intent(Intent.ACTION_PICK,MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        openGalleryIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivityForResult(Intent.createChooser(openGalleryIntent,getString(R.string.select_from_gallery)),GALLERY_REQEST_CODE);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode==CAMERA_REQUEST_CODE && resultCode == RESULT_OK)
+        {
+            //open cropper
+            CropImage.activity(imageUri).setFixAspectRatio(true).setAspectRatio(1,1).
+                    setMaxCropResultSize(2500,2500).
+                    setCropShape(CropImageView.CropShape.OVAL).start(this);
+        }
+        else if (requestCode == GALLERY_REQEST_CODE && data!=null)
+        {
+            imageUri = data.getData();
+            //open cropper
+            CropImage.activity(imageUri).setFixAspectRatio(true).setAspectRatio(1,1).
+                    setMaxCropResultSize(2500,2500).
+                    setCropShape(CropImageView.CropShape.OVAL).start(this);
+        }
+        else if (requestCode== CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode== RESULT_OK &&data!=null)
+        {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            imageUri = result.getUri();
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(imageUri);
+                userImage = Drawable.createFromStream(inputStream, imageUri.toString() );
+            } catch (FileNotFoundException e) {
+                userImage = getResources().getDrawable(R.drawable.user_placeholder);
+            }
+            UserProfileFragment fragment = (UserProfileFragment) getSupportFragmentManager().findFragmentByTag(USER_PROFILE_FRAGMENT_TAG);
+            if(fragment!=null)
+                fragment.changeImage();
+//            constructFragment(new UserProfileFragment());
+        }
+        else
+        {
+            Toast.makeText(this,getString(R.string.error),Toast.LENGTH_SHORT).show();
+        }
     }
 
     void constructFragment(Fragment fragment)
     {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_area,fragment);
+        if(fragment instanceof UserProfileFragment)
+            fragmentTransaction.replace(R.id.fragment_area,fragment,USER_PROFILE_FRAGMENT_TAG);
+        else
+            fragmentTransaction.replace(R.id.fragment_area,fragment);
         fragmentTransaction.commit();
         //helps construct the fragment
     }
