@@ -10,12 +10,16 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.module.AppGlideModule;
+import com.bumptech.glide.signature.MediaStoreSignature;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecyclerViewAdapter.CustomViewHolder> {
     private ArrayList<DocumentSnapshot> dataArray;
@@ -40,7 +44,8 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         customViewHolder.usrProfileImage.setImageDrawable(customViewHolder.usrProfileImage.getContext().getDrawable(R.drawable.user_placeholder));
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference reference = storage.getReference("images/"+loadedUser.getProfileImageUrl());
-        GlideApp.with(customViewHolder.usrProfileImage).load(reference).into(customViewHolder.usrProfileImage);
+        GlideApp.with(customViewHolder.usrProfileImage).load(reference).diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true).into(customViewHolder.usrProfileImage);//TODO caching!
     }
 
     @Override
