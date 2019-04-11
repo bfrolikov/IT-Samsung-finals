@@ -57,7 +57,6 @@
     <style name="ToolBarStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">?attr/actionBarSize</item>
-        <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
         <item name="android:background">@color/colorPrimary</item>
     </style>
     <style name="LoginStyle" parent="TextAppearance.MaterialComponents.Headline2">
