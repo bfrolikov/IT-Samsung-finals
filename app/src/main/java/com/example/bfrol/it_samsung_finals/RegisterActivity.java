@@ -36,7 +36,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 //successfully added user with email and password to the Firebase Auth system which is NOT the database
                                 FirebaseFirestore database = FirebaseFirestore.getInstance(); //get an instance of the Cloud Firestore Database
                                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                                database.collection("users").document(firebaseUser.getUid()).set(constructUser()).//add current user to the database
+                                database.collection("users").document(firebaseUser.getUid()).set(constructUser(firebaseUser.getUid())).//add current user to the database
                                         addOnSuccessListener(aVoid -> {
                                             MainActivity.currentUser = null;
                                             openMainActivity(); //successfully added user to the database
@@ -64,8 +64,9 @@ public class RegisterActivity extends AppCompatActivity {
         startActivity(openMainActivity);
         finish();
     }
-    private User constructUser()
+    private User constructUser(String uid)
     {
+
         //Constructs a new User instance based on the UI
         String name = ((EditText)findViewById(R.id.register_name)).getText().toString();
         String lastName = ((EditText)findViewById(R.id.register_surname)).getText().toString();
@@ -73,7 +74,7 @@ public class RegisterActivity extends AppCompatActivity {
         String country = ((EditText)findViewById(R.id.register_country)).getText().toString();
         String city = ((EditText)findViewById(R.id.register_city)).getText().toString();
         String demands = ((EditText)findViewById(R.id.register_demands)).getText().toString();
-        String profileUrl =""; //TODO image query
+        String profileUrl = uid+".jpg";
         return new User(name,lastName,socialMedia,country,city,demands,profileUrl,0);
     }
 }

@@ -9,7 +9,11 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.module.AppGlideModule;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -33,6 +37,10 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         customViewHolder.usrDemands.setText(loadedUser.getDemands());
         customViewHolder.usrUsername.setText(loadedUser.getFirstName()+" "+loadedUser.getLastName());
         customViewHolder.usrRating.setRating(loadedUser.getRating());
+        customViewHolder.usrProfileImage.setImageDrawable(customViewHolder.usrProfileImage.getContext().getDrawable(R.drawable.user_placeholder));
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference reference = storage.getReference("images/"+loadedUser.getProfileImageUrl());
+        GlideApp.with(customViewHolder.usrProfileImage).load(reference).into(customViewHolder.usrProfileImage);
     }
 
     @Override
@@ -55,7 +63,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         }
     }
 
-    public void setDataArray(ArrayList<DocumentSnapshot> dataArray) {
+    void setDataArray(ArrayList<DocumentSnapshot> dataArray) {
         this.dataArray = dataArray;
     }
 }

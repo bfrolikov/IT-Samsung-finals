@@ -36,12 +36,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         firebaseAuth = FirebaseAuth.getInstance();
         adapter = new CustomRecyclerViewAdapter(new ArrayList<>());
         userImage = getDrawable(R.drawable.user_placeholder);
+        loadProfileImageFromCloud();
 
     }
     private int checkForPermission(String permission)
@@ -258,14 +261,12 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
             imageUri = result.getUri();
             try {
                 InputStream inputStream = getContentResolver().openInputStream(imageUri);
-                userImage = Drawable.createFromStream(inputStream, imageUri.toString() );
+                userImage = Drawable.createFromStream(inputStream, imageUri.toString());
+                uploadProfileImageToCloud(imageUri);
             } catch (FileNotFoundException e) {
                 userImage = getResources().getDrawable(R.drawable.user_placeholder);
             }
-            UserProfileFragment fragment = (UserProfileFragment) getSupportFragmentManager().findFragmentByTag(USER_PROFILE_FRAGMENT_TAG);
-            if(fragment!=null)
-                fragment.changeImage();
-//            constructFragment(new UserProfileFragment());
+            updateImageInFragment();
         }
         else
         {
@@ -282,5 +283,36 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
             fragmentTransaction.replace(R.id.fragment_area,fragment);
         fragmentTransaction.commit();
         //helps construct the fragment
+    }
+    private void loadProfileImageFromCloud()
+    {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageReference = storage.getReference("images/"+firebaseAuth.getCurrentUser().getUid()+".jpg");
+        try {
+            File buffer = File.createTempFile("images","jpg");
+            storageReference.getFile(buffer).
+                    addOnSuccessListener(taskSnapshot -> {
+                        userImage = Drawable.createFromPath(buffer.getAbsolutePath());
+                        updateImageInFragment();
+                        buffer.deleteOnExit();
+                    }).
+                    addOnFailureListener(e -> {});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void uploadProfileImageToCloud(Uri fileUri)
+    {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageReference = storage.getReference("images/"+firebaseAuth.getCurrentUser().getUid()+".jpg");
+        storageReference.putFile(fileUri).
+                addOnSuccessListener(taskSnapshot -> {}).
+                addOnFailureListener(e -> {});
+    }
+    private void updateImageInFragment()
+    {
+        UserProfileFragment fragment = (UserProfileFragment) getSupportFragmentManager().findFragmentByTag(USER_PROFILE_FRAGMENT_TAG);
+        if(fragment!=null)
+            fragment.changeImage();
     }
 }
