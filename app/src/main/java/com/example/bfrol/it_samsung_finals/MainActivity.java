@@ -28,14 +28,19 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -63,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
     private Menu menu;
     private Uri imageUri;
     static Drawable userImage;
-    static CustomRecyclerViewAdapter adapter;
+    static CustomRecyclerViewAdapter adapter; //adapter for the search fragment
     static User currentUser; //a static field for the user class stored in cache
     FirebaseAuth firebaseAuth;
     FirebaseFirestore database;
@@ -91,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
                     updateMenu(MENU_WITHOUT_SEARCH);
                     return true;
                 case R.id.navigation_messages:
+                    constructFragment(new MessageFragment());
                     updateMenu(MENU_WITHOUT_SEARCH);
                     return true;
                 case R.id.navigation_search:
@@ -314,5 +320,59 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         UserProfileFragment fragment = (UserProfileFragment) getSupportFragmentManager().findFragmentByTag(USER_PROFILE_FRAGMENT_TAG);
         if(fragment!=null)
             fragment.changeImage();
+    }
+}
+
+
+//recycler view adapter for the search items
+class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecyclerViewAdapter.CustomViewHolder> {
+    private ArrayList<DocumentSnapshot> dataArray;
+
+    public CustomRecyclerViewAdapter(ArrayList<DocumentSnapshot> dataArray) {
+        this.dataArray = dataArray;
+    }
+
+    @NonNull
+    @Override
+    public CustomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_item_with_rating, parent, false);
+        return new CustomViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull CustomViewHolder customViewHolder, int position) {
+        User loadedUser = dataArray.get(position).toObject(User.class);
+        customViewHolder.usrDemands.setText(loadedUser.getDemands());
+        customViewHolder.usrUsername.setText(loadedUser.getFirstName()+" "+loadedUser.getLastName());
+        customViewHolder.usrRating.setRating(loadedUser.getRating());
+        customViewHolder.usrProfileImage.setImageDrawable(customViewHolder.usrProfileImage.getContext().getDrawable(R.drawable.user_placeholder));
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference reference = storage.getReference("images/"+loadedUser.getProfileImageUrl());
+        GlideApp.with(customViewHolder.usrProfileImage).load(reference).diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true).into(customViewHolder.usrProfileImage);//TODO caching!
+    }
+
+    @Override
+    public int getItemCount() {
+        return dataArray.size();
+    }
+
+
+    class CustomViewHolder extends RecyclerView.ViewHolder {
+        TextView usrUsername, usrDemands;
+        RatingBar usrRating;
+        ImageView usrProfileImage;
+
+        CustomViewHolder(@NonNull View itemView) {
+            super(itemView);
+            usrUsername = itemView.findViewById(R.id.usr_username);
+            usrDemands = itemView.findViewById(R.id.usr_demands);
+            usrRating = itemView.findViewById(R.id.usr_rating);
+            usrProfileImage = itemView.findViewById(R.id.usr_profile_image);
+        }
+    }
+
+    void setDataArray(ArrayList<DocumentSnapshot> dataArray) {
+        this.dataArray = dataArray;
     }
 }
