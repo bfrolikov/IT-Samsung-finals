@@ -18,7 +18,7 @@ public class ChatActivity extends AppCompatActivity {
 
 class ChatRecyclerViewAdapter extends RecyclerView.Adapter
 {
-    
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
