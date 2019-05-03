@@ -18,7 +18,7 @@
         tools:text="привет мир" />
 
     <TextView
-        android:id="@+id/received_date"
+        android:id="@+id/received_time"
         style="@style/TextAppearance.MaterialComponents.Caption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

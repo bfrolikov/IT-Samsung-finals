@@ -1,6 +1,8 @@
 package com.example.bfrol.it_samsung_finals;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     //this is for convenience when managing users in the database
     private String firstName;
     private String lastName;
@@ -8,18 +10,18 @@ public class User {
     private String country;
     private String city;
     private String demands;
-    private String profileImageUrl;
+    private String uID;
     private int rating;
     public User() {}
 
-    public User(String firstName, String lastName, String socialMediaLink, String country, String city, String demands, String profileImageUrl,int rating) {
+    public User(String firstName, String lastName, String socialMediaLink, String country, String city, String demands, String uID,int rating) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.socialMediaLink = socialMediaLink;
         this.country = country;
         this.city = city;
         this.demands = demands;
-        this.profileImageUrl = profileImageUrl;
+        this.uID = uID;
         this.rating = rating;
     }
 
@@ -47,9 +49,7 @@ public class User {
         return demands;
     }
 
-    public String getProfileImageUrl() {
-        return profileImageUrl;
-    }
+    public String getuID() { return uID; }
 
     public int getRating() {
         return rating;

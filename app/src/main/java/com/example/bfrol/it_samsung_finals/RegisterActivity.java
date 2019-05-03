@@ -74,7 +74,6 @@ public class RegisterActivity extends AppCompatActivity {
         String country = ((EditText)findViewById(R.id.register_country)).getText().toString();
         String city = ((EditText)findViewById(R.id.register_city)).getText().toString();
         String demands = ((EditText)findViewById(R.id.register_demands)).getText().toString();
-        String profileUrl = uid+".jpg";
-        return new User(name,lastName,socialMedia,country,city,demands,profileUrl,0);
+        return new User(name,lastName,socialMedia,country,city,demands,uid,0);
     }
 }

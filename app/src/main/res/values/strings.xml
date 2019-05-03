@@ -39,4 +39,7 @@
     <string name="select_from_gallery">Выберите фото из галереи</string>
     <string name="enter_message">Введите сообщение</string>
     <string name="error">Ошибка</string>
+    <string name="location">Локация:</string>
+    <string name="my_demands">Я погуляю с вами, если:</string>
+    <string name="contact">Написать!</string>
 </resources>

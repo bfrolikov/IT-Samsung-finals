@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SelectedUserProfileActivity">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/sel_user_image"
+        android:layout_width="81dp"
+        android:layout_height="81dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/sel_user_name"
+        style="@style/UsernameStyle"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        tools:text="Иван Иванов"
+        app:layout_constraintStart_toEndOf="@+id/sel_user_image"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RatingBar
+        android:id="@+id/sel_user_rating"
+        style="@style/RatingBarIndicatorStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:rating="4.5"
+        android:theme="@style/RatingBarTheme"
+        app:layout_constraintStart_toStartOf="@+id/sel_user_name"
+        app:layout_constraintTop_toBottomOf="@+id/sel_user_name" />
+
+    <TextView
+        android:id="@+id/sel_user_location"
+        style="@style/BigCaptionStyle"
+        android:layout_marginTop="52dp"
+        android:ems="13"
+        app:layout_constraintStart_toStartOf="@+id/sel_user_image"
+        app:layout_constraintTop_toBottomOf="@+id/sel_user_image"
+        tools:text="@string/location" />
+
+    <TextView
+        android:id="@+id/sel_user_demands"
+        style="@style/BigCaptionStyle"
+        android:layout_marginTop="32dp"
+        app:layout_constraintStart_toStartOf="@+id/sel_user_location"
+        app:layout_constraintTop_toBottomOf="@+id/sel_user_location"
+        android:text="@string/my_demands" />
+
+    <TextView
+        android:id="@+id/sel_user_demands_text"
+        android:layout_width="306dp"
+        android:layout_height="242dp"
+        android:layout_marginTop="8dp"
+        android:padding="10dp"
+        style="@style/TextAppearance.MaterialComponents.Body1"
+        android:textSize="18sp"
+        android:background="@drawable/border"
+        app:layout_constraintStart_toStartOf="@+id/sel_user_demands"
+        app:layout_constraintTop_toBottomOf="@+id/sel_user_demands" />
+
+    <Button
+        android:id="@+id/sel_user_contact_button"
+        style="@style/ButtonStyle"
+        android:layout_width="306dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/contact"
+        android:textSize="28sp"
+        app:layout_constraintEnd_toEndOf="@+id/sel_user_demands_text"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/sel_user_demands_text"
+        app:layout_constraintTop_toBottomOf="@+id/sel_user_demands_text" />
+
+</android.support.constraint.ConstraintLayout>

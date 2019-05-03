@@ -7,7 +7,7 @@
     android:layout_height="wrap_content">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/circleImageView"
+        android:id="@+id/msg_item_usr_image"
         android:layout_width="81dp"
         android:layout_height="81dp"
         android:layout_marginStart="8dp"
@@ -18,26 +18,27 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/msg_item_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         tools:text="Иван Иванов"
-        app:layout_constraintStart_toEndOf="@+id/circleImageView"
-        app:layout_constraintTop_toTopOf="@+id/circleImageView"
+        app:layout_constraintStart_toEndOf="@+id/msg_item_usr_image"
+        app:layout_constraintTop_toTopOf="@+id/msg_item_usr_image"
         style="@style/UsernameStyle"/>
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/msg_item_last_message"
+        style="@style/captionStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="10dp"
-        tools:text="привет"
-        style="@style/captionStyle"
         android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/circleImageView"
-        app:layout_constraintStart_toEndOf="@+id/circleImageView"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        android:ems="12"
+        app:layout_constraintBottom_toBottomOf="@+id/msg_item_usr_image"
+        app:layout_constraintStart_toEndOf="@+id/msg_item_usr_image"
+        app:layout_constraintTop_toBottomOf="@+id/msg_item_name"
+        tools:text="привет" />
 </android.support.constraint.ConstraintLayout>

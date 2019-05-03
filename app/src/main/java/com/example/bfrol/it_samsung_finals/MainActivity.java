@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
     static final int CAMERA_REQUEST_CODE = 0;
     static final int GALLERY_REQEST_CODE = 1;
     static final String USER_PROFILE_FRAGMENT_TAG = "userpf";
+    static final String LOADED_USER_TAG = "loadeduser";
     private Toolbar toolbar;
     private Menu menu;
     private Uri imageUri;
@@ -342,12 +343,19 @@ class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecyclerViewA
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder customViewHolder, int position) {
         User loadedUser = dataArray.get(position).toObject(User.class);
+        customViewHolder.itemView.setOnClickListener(caller->{
+            Intent openSelectedUserProfileActivity = new Intent(customViewHolder.usrDemands.getContext(),SelectedUserProfileActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(MainActivity.LOADED_USER_TAG,loadedUser);
+            openSelectedUserProfileActivity.putExtras(bundle);
+            customViewHolder.itemView.getContext().startActivity(openSelectedUserProfileActivity);
+        });
         customViewHolder.usrDemands.setText(loadedUser.getDemands());
         customViewHolder.usrUsername.setText(loadedUser.getFirstName()+" "+loadedUser.getLastName());
         customViewHolder.usrRating.setRating(loadedUser.getRating());
         customViewHolder.usrProfileImage.setImageDrawable(customViewHolder.usrProfileImage.getContext().getDrawable(R.drawable.user_placeholder));
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference reference = storage.getReference("images/"+loadedUser.getProfileImageUrl());
+        StorageReference reference = storage.getReference("images/"+loadedUser.getuID()+".jpg");
         GlideApp.with(customViewHolder.usrProfileImage).load(reference).diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true).into(customViewHolder.usrProfileImage);//TODO caching!
     }
