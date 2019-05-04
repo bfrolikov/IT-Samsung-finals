@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth; // class that provides Firebase authentication
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,40 +33,34 @@ public class LoginActivity extends AppCompatActivity {
         });
         firebaseAuth = FirebaseAuth.getInstance();
         Button loginSignInButton = findViewById(R.id.login_sign_in_button);
-        loginSignInButton.setOnClickListener(listener->{
+        loginSignInButton.setOnClickListener(listener -> {
             EditText loginEmailEdit = findViewById(R.id.login_email_edit);
             EditText loginPasswordEdit = findViewById(R.id.login_password_edit);
             //TODO check password and email for validity
-            firebaseAuth.signInWithEmailAndPassword(loginEmailEdit.getText().toString(),loginPasswordEdit.getText().toString())
-                    .addOnCompleteListener(this, task -> {
+            firebaseAuth.signInWithEmailAndPassword(loginEmailEdit.getText().toString(), loginPasswordEdit.getText().toString())
+                    .addOnSuccessListener(this, task -> {
                         //TODO implement snackbar with information about the login status
-                        if (task.isSuccessful())
-                        {
-                            MainActivity.currentUser = null;
-                            //authentication successful
-                            openMainActivity();
-                        }
-                        else
-                        {
-                            //authentication failed
-                            Toast.makeText(getApplicationContext(),"Login Error",Toast.LENGTH_LONG).show();
-                        }
-                    });
+                        MainActivity.currentUser = null;
+                        //authentication successful
+                        openMainActivity();
+
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(this,e.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
+            });
         });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if(firebaseAuth.getCurrentUser()!=null) // check if the user is signed in
+        if (firebaseAuth.getCurrentUser() != null) // check if the user is signed in
         {
             openMainActivity();
         }
     }
 
-    private void openMainActivity()
-    {
-        Intent openMainActivity = new Intent(this,MainActivity.class);
+    private void openMainActivity() {
+        Intent openMainActivity = new Intent(this, MainActivity.class);
         openMainActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);// clear activity history
         startActivity(openMainActivity);
         finish();

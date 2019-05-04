@@ -1,13 +1,15 @@
 package com.example.bfrol.it_samsung_finals;
 
+import java.util.Date;
+
 public class Message {
     private String sender;
     private String receiver;
     private String text;
-    private String time;
+    private Date time;
     public Message() {}
 
-    public Message(String sender, String receiver, String text, String time) {
+    public Message(String sender, String receiver, String text, Date time) {
         this.sender = sender;
         this.receiver = receiver;
         this.text = text;
@@ -26,7 +28,7 @@ public class Message {
         return text;
     }
 
-    public String getTime() {
+    public Date getTime() {
         return time;
     }
 }

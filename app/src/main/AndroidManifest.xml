@@ -15,8 +15,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SelectedUserProfileActivity"></activity>
-        <activity android:name=".ChatActivity" />
+        <activity android:name=".ChatActivity"></activity>
+        <activity android:name=".SelectedUserProfileActivity" />
         <activity android:name=".RegisterActivity" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"

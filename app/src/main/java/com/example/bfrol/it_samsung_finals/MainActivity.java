@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
                     hideKeyboard();
                     //the search goes here
                     constructFragment(new ProgressBarFragment());
-                    database.collection("users").whereEqualTo("firstName",s)
+                    database.collection("users").whereGreaterThanOrEqualTo("firstName",s)
                             .get()
                             .addOnSuccessListener(querySnapshot -> {
                                 adapter.setDataArray((ArrayList<DocumentSnapshot>)querySnapshot.getDocuments());
