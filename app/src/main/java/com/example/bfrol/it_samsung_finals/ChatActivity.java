@@ -63,7 +63,14 @@ public class ChatActivity extends AppCompatActivity {
                         newChatRoom.put("user2",user.getuID());
                         firestore.collection("rooms").add(newChatRoom).addOnSuccessListener(documentReference -> {
                             Message firstMessage = new Message(firebaseUser.getUid(),user.getuID(),"Hello, i'm interested",new Date());//generate automatic message
-                            documentReference.collection("messages").add(firstMessage);
+                            documentReference.collection("messages").add(firstMessage).addOnSuccessListener(documentReference1 -> {
+                                documentReference1.get().addOnSuccessListener(documentSnapshot -> {
+                                    adapter.addMessage(documentSnapshot);
+                                    adapter.notifyDataSetChanged();
+                                    activeCollection = documentReference.collection("messages");
+                                });
+
+                            });
                         });
                     }
                     else
