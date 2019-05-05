@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -28,6 +30,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,14 +44,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -56,7 +65,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements UserProfileFragment.ProfileFragmentInterface {
     static final int MENU_WITH_SEARCH = 0;
@@ -65,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
     static final int GALLERY_REQEST_CODE = 1;
     static final String USER_PROFILE_FRAGMENT_TAG = "userpf";
     static final String LOADED_USER_TAG = "loadeduser";
+    static final String USERS_ARRAY_TAG = "usersarray";
     private Toolbar toolbar;
     private Menu menu;
     private Uri imageUri;
@@ -73,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
     static User currentUser; //a static field for the user class stored in cache
     FirebaseAuth firebaseAuth;
     FirebaseFirestore database;
+    FirebaseFunctions firebaseFunctions;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -83,10 +105,9 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
                 case R.id.navigation_profile:
                     //the user profile menu was opened so an instance of UserProfileFragment is inflated and inserted into the UI
                     //in case the user is stored in cache
-                    if(currentUser!=null)
+                    if (currentUser != null)
                         constructFragment(new UserProfileFragment());
-                    else
-                    {
+                    else {
                         constructFragment(new ProgressBarFragment());
                         DocumentReference docRef = database.collection("users").document(firebaseAuth.getCurrentUser().getUid());
                         docRef.get().addOnSuccessListener(documentSnapshot -> {
@@ -120,36 +141,35 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         setSupportActionBar(toolbar);
         database = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
+        firebaseFunctions = FirebaseFunctions.getInstance();
         adapter = new CustomRecyclerViewAdapter(new ArrayList<>());
         userImage = getDrawable(R.drawable.user_placeholder);
         loadProfileImageFromCloud();
 
     }
-    private int checkForPermission(String permission)
-    {
+
+    private int checkForPermission(String permission) {
         return ContextCompat.checkSelfPermission(this, permission);
     }
-    private void requestRuntimePermission(String permission,int requestCode) {
+
+    private void requestRuntimePermission(String permission, int requestCode) {
     /*    if(ActivityCompat.shouldShowRequestPermissionRationale(this,permission))
         {
             Toast.makeText(this,explanation,Toast.LENGTH_LONG).show();
         }*/
-        ActivityCompat.requestPermissions(this,new String[]{permission},requestCode);
+        ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode)
-        {
-            case CAMERA_REQUEST_CODE:
-            {
-              if(grantResults.length==0 || grantResults[0]==PackageManager.PERMISSION_DENIED)
-              {
-                  if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA))
-                      Toast.makeText(this,getString(R.string.camera_permission_explanation),Toast.LENGTH_LONG).show();
-                  else
-                      Toast.makeText(this,getString(R.string.camera_permission_denied_explanation),Toast.LENGTH_SHORT).show();
-              }
+        switch (requestCode) {
+            case CAMERA_REQUEST_CODE: {
+                if (grantResults.length == 0 || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA))
+                        Toast.makeText(this, getString(R.string.camera_permission_explanation), Toast.LENGTH_LONG).show();
+                    else
+                        Toast.makeText(this, getString(R.string.camera_permission_denied_explanation), Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -160,16 +180,15 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         updateMenu(MENU_WITH_SEARCH);
         return true;
     }
-    private void updateMenu(final int type)
-    {
+
+    private void updateMenu(final int type) {
         //the app is meant to have dynamically changing menu so this function configures different menu
         //types to use in the application. Called on startup in onCreateOptionsMenu and when the bottom navigation item is clicked
-        if(menu == null) return;
+        if (menu == null) return;
         MenuInflater menuInflater = getMenuInflater();
         menu.clear();
-        if(type == MENU_WITH_SEARCH)
-        {
-            menuInflater.inflate(R.menu.toolbar_menu_with_search,menu);
+        if (type == MENU_WITH_SEARCH) {
+            menuInflater.inflate(R.menu.toolbar_menu_with_search, menu);
             SearchView menuSearch = (SearchView) menu.findItem(R.id.menu_search).getActionView();
             menuSearch.setIconifiedByDefault(false);
             menuSearch.setQueryHint(getResources().getString(R.string.search_hint));
@@ -177,15 +196,23 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
                 @Override
                 public boolean onQueryTextSubmit(String s) {
                     hideKeyboard();
+                    final String searchRequest = s;
                     //the search goes here
                     constructFragment(new ProgressBarFragment());
-                    database.collection("users").whereGreaterThanOrEqualTo("firstName",s)
+                   /* database.collection("users").whereGreaterThanOrEqualTo("firstName",s)
                             .get()
                             .addOnSuccessListener(querySnapshot -> {
                                 adapter.setDataArray((ArrayList<DocumentSnapshot>)querySnapshot.getDocuments());
                                 adapter.notifyDataSetChanged();
                                 constructFragment(new SearchFragment());
                             }); //TODO fail handling
+                            */
+                    HttpHelper httpHelper = new HttpHelper();
+                    try {
+                        httpHelper.run(s);
+                    } catch (Exception e) {
+                        Log.e("Error:",e.getLocalizedMessage());
+                    }
                     return true;
                 }
 
@@ -194,17 +221,16 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
                     return true;
                 }
             });
-        }
-        else if(type == MENU_WITHOUT_SEARCH)
-        {
-            menuInflater.inflate(R.menu.toolbar_menu_without_search,menu);
+        } else if (type == MENU_WITHOUT_SEARCH) {
+            menuInflater.inflate(R.menu.toolbar_menu_without_search, menu);
             toolbar.setTitle(" ");
         }
     }
+
     public void hideKeyboard() {
         View view = this.getCurrentFocus();
         if (view != null) {
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
 
@@ -214,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
     public void onUserSignOut() {
         //user signed out in the fragment
         FirebaseAuth.getInstance().signOut();
-        Intent openLoginActivity = new Intent(this,LoginActivity.class);
+        Intent openLoginActivity = new Intent(this, LoginActivity.class);
         openLoginActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);// clear activity history
         startActivity(openLoginActivity);
         finish();
@@ -222,48 +248,41 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
 
     @Override
     public void onCameraOpened() {
-        if (checkForPermission(Manifest.permission.CAMERA)==PackageManager.PERMISSION_DENIED)
-        {
-            requestRuntimePermission(Manifest.permission.CAMERA,CAMERA_REQUEST_CODE);
+        if (checkForPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
+            requestRuntimePermission(Manifest.permission.CAMERA, CAMERA_REQUEST_CODE);
             return;
             //if the user hasn't given the permission to use the camera
         }
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File file = new File(getExternalCacheDir(),"file"+String.valueOf(System.currentTimeMillis())+".jpg");
-        imageUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".fileprovider",file);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
-       // cameraIntent.putExtra("return-data",true);
+        File file = new File(getExternalCacheDir(), "file" + String.valueOf(System.currentTimeMillis()) + ".jpg");
+        imageUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", file);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        // cameraIntent.putExtra("return-data",true);
         cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        startActivityForResult(cameraIntent,CAMERA_REQUEST_CODE);
+        startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
     }
-
     @Override
     public void onGalleryOpened() {
-        Intent openGalleryIntent = new Intent(Intent.ACTION_PICK,MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent openGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         openGalleryIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivityForResult(Intent.createChooser(openGalleryIntent,getString(R.string.select_from_gallery)),GALLERY_REQEST_CODE);
+        startActivityForResult(Intent.createChooser(openGalleryIntent, getString(R.string.select_from_gallery)), GALLERY_REQEST_CODE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode==CAMERA_REQUEST_CODE && resultCode == RESULT_OK)
-        {
+        if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
             //open cropper
-            CropImage.activity(imageUri).setFixAspectRatio(true).setAspectRatio(1,1).
-                    setMaxCropResultSize(2500,2500).
+            CropImage.activity(imageUri).setFixAspectRatio(true).setAspectRatio(1, 1).
+                    setMaxCropResultSize(2500, 2500).
                     setCropShape(CropImageView.CropShape.OVAL).start(this);
-        }
-        else if (requestCode == GALLERY_REQEST_CODE && data!=null)
-        {
+        } else if (requestCode == GALLERY_REQEST_CODE && data != null) {
             imageUri = data.getData();
             //open cropper
-            CropImage.activity(imageUri).setFixAspectRatio(true).setAspectRatio(1,1).
-                    setMaxCropResultSize(2500,2500).
+            CropImage.activity(imageUri).setFixAspectRatio(true).setAspectRatio(1, 1).
+                    setMaxCropResultSize(2500, 2500).
                     setCropShape(CropImageView.CropShape.OVAL).start(this);
-        }
-        else if (requestCode== CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode== RESULT_OK &&data!=null)
-        {
+        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             imageUri = result.getUri();
             try {
@@ -274,62 +293,89 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
                 userImage = getResources().getDrawable(R.drawable.user_placeholder);
             }
             updateImageInFragment();
-        }
-        else
-        {
-            Toast.makeText(this,getString(R.string.error),Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, getString(R.string.error), Toast.LENGTH_SHORT).show();
         }
     }
 
-    void constructFragment(Fragment fragment)
-    {
+    void constructFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        if(fragment instanceof UserProfileFragment)
-            fragmentTransaction.replace(R.id.fragment_area,fragment,USER_PROFILE_FRAGMENT_TAG);
+        if (fragment instanceof UserProfileFragment)
+            fragmentTransaction.replace(R.id.fragment_area, fragment, USER_PROFILE_FRAGMENT_TAG);
         else
-            fragmentTransaction.replace(R.id.fragment_area,fragment);
+            fragmentTransaction.replace(R.id.fragment_area, fragment);
         fragmentTransaction.commit();
         //helps construct the fragment
     }
-    private void loadProfileImageFromCloud()
-    {
+
+    private void loadProfileImageFromCloud() {
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageReference = storage.getReference("images/"+firebaseAuth.getCurrentUser().getUid()+".jpg");
+        StorageReference storageReference = storage.getReference("images/" + firebaseAuth.getCurrentUser().getUid() + ".jpg");
         try {
-            File buffer = File.createTempFile("images","jpg");
+            File buffer = File.createTempFile("images", "jpg");
             storageReference.getFile(buffer).
                     addOnSuccessListener(taskSnapshot -> {
                         userImage = Drawable.createFromPath(buffer.getAbsolutePath());
                         updateImageInFragment();
                         buffer.deleteOnExit();
                     }).
-                    addOnFailureListener(e -> {});
+                    addOnFailureListener(e -> {
+                    });
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    private void uploadProfileImageToCloud(Uri fileUri)
-    {
+
+    private void uploadProfileImageToCloud(Uri fileUri) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageReference = storage.getReference("images/"+firebaseAuth.getCurrentUser().getUid()+".jpg");
+        StorageReference storageReference = storage.getReference("images/" + firebaseAuth.getCurrentUser().getUid() + ".jpg");
         storageReference.putFile(fileUri).
-                addOnSuccessListener(taskSnapshot -> {}).
-                addOnFailureListener(e -> {});
+                addOnSuccessListener(taskSnapshot -> {
+                }).
+                addOnFailureListener(e -> {
+                });
     }
-    private void updateImageInFragment()
-    {
+
+    private void updateImageInFragment() {
         UserProfileFragment fragment = (UserProfileFragment) getSupportFragmentManager().findFragmentByTag(USER_PROFILE_FRAGMENT_TAG);
-        if(fragment!=null)
+        if (fragment != null)
             fragment.changeImage();
     }
+    class HttpHelper //this helps to execute the cloud function for finding users in the database
+    {
+        private final OkHttpClient client = new OkHttpClient();
+        public void run(String s) throws Exception
+        {
+            String url = "https://us-central1-xsharing-c7dd4.cloudfunctions.net/findUsers?text="+s;
+            Request request = new Request.Builder().url(url).build();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Log.e("Error:",e.getLocalizedMessage());
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+                    Type listType = new TypeToken<List<User>>(){}.getType();
+                    Gson gson = new Gson();
+                    ArrayList<User> newUsers = gson.fromJson(response.body().string(),listType);
+                    adapter.setDataArray(newUsers);
+                    adapter.notifyDataSetChanged();
+                    constructFragment(new SearchFragment());
+                }
+            });
+        }
+    }
+
 }
 
 
 //recycler view adapter for the search items
 class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecyclerViewAdapter.CustomViewHolder> {
-    private ArrayList<DocumentSnapshot> dataArray;
+    private ArrayList<User> dataArray;
 
-    public CustomRecyclerViewAdapter(ArrayList<DocumentSnapshot> dataArray) {
+    public CustomRecyclerViewAdapter(ArrayList<User> dataArray) {
         this.dataArray = dataArray;
     }
 
@@ -342,20 +388,20 @@ class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecyclerViewA
 
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder customViewHolder, int position) {
-        User loadedUser = dataArray.get(position).toObject(User.class);
-        customViewHolder.itemView.setOnClickListener(caller->{
-            Intent openSelectedUserProfileActivity = new Intent(customViewHolder.usrDemands.getContext(),SelectedUserProfileActivity.class);
+        User loadedUser = dataArray.get(position);
+        customViewHolder.itemView.setOnClickListener(caller -> {
+            Intent openSelectedUserProfileActivity = new Intent(customViewHolder.usrDemands.getContext(), SelectedUserProfileActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putSerializable(MainActivity.LOADED_USER_TAG,loadedUser);
+            bundle.putSerializable(MainActivity.LOADED_USER_TAG, loadedUser);
             openSelectedUserProfileActivity.putExtras(bundle);
             customViewHolder.itemView.getContext().startActivity(openSelectedUserProfileActivity);
         });
         customViewHolder.usrDemands.setText(loadedUser.getDemands());
-        customViewHolder.usrUsername.setText(loadedUser.getFirstName()+" "+loadedUser.getLastName());
+        customViewHolder.usrUsername.setText(loadedUser.getFirstName() + " " + loadedUser.getLastName());
         customViewHolder.usrRating.setRating(loadedUser.getRating());
         customViewHolder.usrProfileImage.setImageDrawable(customViewHolder.usrProfileImage.getContext().getDrawable(R.drawable.user_placeholder));
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference reference = storage.getReference("images/"+loadedUser.getuID()+".jpg");
+        StorageReference reference = storage.getReference("images/" + loadedUser.getuID() + ".jpg");
         GlideApp.with(customViewHolder.usrProfileImage).load(reference).diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true).into(customViewHolder.usrProfileImage);//TODO caching!
     }
@@ -380,7 +426,7 @@ class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecyclerViewA
         }
     }
 
-    void setDataArray(ArrayList<DocumentSnapshot> dataArray) {
+    void setDataArray(ArrayList<User> dataArray) {
         this.dataArray = dataArray;
     }
 }
