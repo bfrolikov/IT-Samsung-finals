@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +45,7 @@ public class SelectedUserProfileActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.sel_user_name)).setText(user.getFirstName()+" "+user.getLastName());
         ((TextView)findViewById(R.id.sel_user_demands_text)).setText(user.getDemands());
         ((TextView)findViewById(R.id.sel_user_location)).setText(getResources().getString(R.string.location)+" "+user.getCity()+", "+user.getCountry());
+        ((RatingBar)findViewById(R.id.sel_user_rating)).setRating(user.getRating());
         Button selUserContactButton = findViewById(R.id.sel_user_contact_button);
         selUserContactButton.setOnClickListener(caller->{
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();

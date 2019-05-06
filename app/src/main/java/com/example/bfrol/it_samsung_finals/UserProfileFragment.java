@@ -91,6 +91,7 @@ public class UserProfileFragment extends Fragment {
         });
         builder.create().show();
     }
+
     void changeImage()
     {
         if(getView()!=null)
