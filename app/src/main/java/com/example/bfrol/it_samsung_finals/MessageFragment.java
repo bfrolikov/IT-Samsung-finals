@@ -1,7 +1,10 @@
 package com.example.bfrol.it_samsung_finals;
 
+import android.app.DownloadManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,27 +19,110 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MessageFragment extends Fragment {
-    public static final String USER_TAG = "usertag";
+    public static final String USER_ARRAY_TAG = "userarraytag";
+    private FirebaseFirestore firebaseFirestore;
+    private FirebaseAuth firebaseAuth;
+    private MessageUserRecyclerViewAdapter adapter;
+    private AdapterHandler handler;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_message,container,false);
         RecyclerView messageRecycler = v.findViewById(R.id.message_recycler);
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
         messageRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
-        ArrayList<User> dummyList = new ArrayList<>();
-        dummyList.add(new User("Борис","Иванов","ahsh","agah","agah","agag","T3nXMpwJESUtg8lTjr5xVnzpCZk1",0));
-        messageRecycler.setAdapter(new MessageUserRecyclerViewAdapter(dummyList));
+        adapter = new MessageUserRecyclerViewAdapter(new ArrayList<User>());
+        messageRecycler.setAdapter(adapter);
+        handler = new AdapterHandler(adapter);
+        HttpHelper httpHelper = new HttpHelper(handler);
+        try {
+            httpHelper.run(firebaseAuth.getCurrentUser().getUid());
+        } catch (Exception e) {
+            Log.e("Error:",e.getLocalizedMessage());
+        }
         return v;
     }
+    class HttpHelper //this helps to execute the cloud function for finding users in the database
+    {
+        private final OkHttpClient client = new OkHttpClient();
+        private AdapterHandler handler;
 
+        public HttpHelper(AdapterHandler handler) {
+            this.handler = handler;
+        }
+
+        public void run(String s) throws Exception
+        {
+
+            String url = "https://us-central1-xsharing-c7dd4.cloudfunctions.net/loadUsers?text="+s;
+            Request request = new Request.Builder().url(url).build();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Log.e("Error:",e.getLocalizedMessage());
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                    Type listType = new TypeToken<List<User>>(){}.getType();
+                    Gson gson = new Gson();
+                    ArrayList<User> newUserDialogues = gson.fromJson(response.body().string(),listType);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(USER_ARRAY_TAG,newUserDialogues);
+                    Message msg = new Message();
+                    msg.setData(bundle);
+                    handler.sendMessage(msg);
+                }
+            });
+        }
+    }
+    static class AdapterHandler extends Handler
+    {
+        private WeakReference<MessageUserRecyclerViewAdapter> recyclerWeakReference;
+        AdapterHandler(MessageUserRecyclerViewAdapter adapter)
+        {
+            recyclerWeakReference = new WeakReference<MessageUserRecyclerViewAdapter>(adapter);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            MessageUserRecyclerViewAdapter adapter = recyclerWeakReference.get();
+            if(adapter!=null)
+            {
+                Bundle bundle = msg.getData();
+                ArrayList<User> loadedUserDialogues = (ArrayList<User>) bundle.getSerializable(USER_ARRAY_TAG);
+                adapter.setUserDialogues(loadedUserDialogues);
+                adapter.notifyDataSetChanged();
+            }
+        }
+    }
 
 }
 class MessageUserRecyclerViewAdapter extends RecyclerView.Adapter<MessageUserRecyclerViewAdapter.MessageUserViewHolder>
@@ -59,7 +145,7 @@ class MessageUserRecyclerViewAdapter extends RecyclerView.Adapter<MessageUserRec
         User currentUser = userDialogues.get(position);
         viewHolder.itemView.setOnClickListener(caller->{
             Bundle bundle = new Bundle();
-            bundle.putSerializable(MessageFragment.USER_TAG,currentUser);
+            bundle.putSerializable(SelectedUserProfileActivity.USER_KEY,currentUser);
             Intent openChatActivity = new Intent(viewHolder.itemView.getContext(),ChatActivity.class);
             openChatActivity.putExtras(bundle);
             viewHolder.itemView.getContext().startActivity(openChatActivity);
