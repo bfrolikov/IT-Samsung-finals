@@ -42,4 +42,6 @@
     <string name="location">Локация:</string>
     <string name="my_demands">Я погуляю с вами, если:</string>
     <string name="contact">Написать!</string>
+    <string name="create_route">Создание маршрута</string>
+    <string name="location_permission_denied_explanation">Выберите ваш город вручную</string>
 </resources>

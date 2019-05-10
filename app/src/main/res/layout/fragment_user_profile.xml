@@ -139,5 +139,16 @@
             app:layout_constraintBottom_toTopOf="@+id/prof_demands"
             app:layout_constraintStart_toStartOf="@+id/prof_demands" />
 
+        <Button
+            android:id="@+id/map_button"
+            style="@style/ButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="16dp"
+            android:text="карта"
+            app:layout_constraintStart_toStartOf="@+id/prof_demands"
+            app:layout_constraintTop_toBottomOf="@+id/prof_demands" />
+
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

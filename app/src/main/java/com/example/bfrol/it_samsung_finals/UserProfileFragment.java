@@ -71,6 +71,11 @@ public class UserProfileFragment extends Fragment {
         ((EditText)uiView.findViewById(R.id.prof_demands)).setText(MainActivity.currentUser.getDemands());
         uiView.findViewById(R.id.prof_profile_image).setOnClickListener(view-> openImageEditOptionsDialog());
         ((CircleImageView)uiView.findViewById(R.id.prof_profile_image)).setImageDrawable(MainActivity.userImage);
+        uiView.findViewById(R.id.map_button).setOnClickListener(caller->
+        {
+            Intent openMap = new Intent(getContext(),MapActivity.class);
+            startActivity(openMap);
+        });
     }
     private void openImageEditOptionsDialog()
     {
