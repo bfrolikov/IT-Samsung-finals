@@ -3,6 +3,7 @@
     package="com.example.bfrol.it_samsung_finals">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -53,7 +54,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDGJBOJS_H5pP4AsE_8SaKl_F1UTnrqH08"/>
+            android:value="@string/google_key"/>
     </application>
 
 </manifest>
