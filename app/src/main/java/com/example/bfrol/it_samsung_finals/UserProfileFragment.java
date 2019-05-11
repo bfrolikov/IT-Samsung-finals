@@ -11,14 +11,17 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatSpinner;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,14 +29,20 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.util.ArrayList;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserProfileFragment extends Fragment {
     private ProfileFragmentInterface activityInterface;//interface to tell the activity to close when the user has logged out
+    private ArrayList<String> routes;
+    public static String ROUTE_NAME_KEY = "routenamekey";
     @Nullable
     @Override
     //this fragment is responsible for the user profile
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        routes = new ArrayList<>(MainActivity.currentUser.getRoutes().keySet());
+        routes.add(getResources().getString(R.string.add_new));
         View inflatedView = inflater.inflate(R.layout.fragment_user_profile, container, false);
         updateUI(inflatedView);
         return inflatedView;
@@ -71,11 +80,8 @@ public class UserProfileFragment extends Fragment {
         ((EditText)uiView.findViewById(R.id.prof_demands)).setText(MainActivity.currentUser.getDemands());
         uiView.findViewById(R.id.prof_profile_image).setOnClickListener(view-> openImageEditOptionsDialog());
         ((CircleImageView)uiView.findViewById(R.id.prof_profile_image)).setImageDrawable(MainActivity.userImage);
-        uiView.findViewById(R.id.map_button).setOnClickListener(caller->
-        {
-            Intent openMap = new Intent(getContext(),MapActivity.class);
-            startActivity(openMap);
-        });
+        uiView.findViewById(R.id.spinner_mockup).setOnClickListener(caller-> openRoutesEditDialog());
+        ((TextView)uiView.findViewById(R.id.spinner_text)).setText(routes.get(0));
     }
     private void openImageEditOptionsDialog()
     {
@@ -96,7 +102,27 @@ public class UserProfileFragment extends Fragment {
         });
         builder.create().show();
     }
-
+    private void openRoutesEditDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final String[] options = routes.toArray(new String[0]);
+        builder.setTitle(getString(R.string.your_routes));
+        builder.setItems(options, (dialog, which) -> {
+            if(which==routes.size()-1)
+            {
+                //add new
+                Intent openMapActivity = new Intent(getContext(),MapActivity.class);
+                startActivity(openMapActivity);
+            }
+            else
+            {
+                Intent openMapActivity = new Intent(getContext(),MapActivity.class);
+                openMapActivity.putExtra(ROUTE_NAME_KEY,routes.get(which));
+                startActivity(openMapActivity);
+            }
+        });
+        builder.create().show();
+    }
     void changeImage()
     {
         if(getView()!=null)

@@ -43,5 +43,12 @@
     <string name="my_demands">Я погуляю с вами, если:</string>
     <string name="contact">Написать!</string>
     <string name="create_route">Создание маршрута</string>
-    <string name="location_permission_denied_explanation">Выберите ваш город вручную</string>
+    <string name="location_permission_denied_explanation">Выберите город вручную</string>
+    <string name="location_permission_explanation">Приложению необходимо разрешение на местоположение</string>
+    <string name="my_routes">Мои маршруты</string>
+    <string name="add_new">Добавить новый...</string>
+    <string name="your_routes">Управление маршрутами</string>
+    <string name="new_route">Новый маршрут</string>
+    <string name="enable_providers">Пожалуйста, включите GPS и Интернет</string>
+    <string name="save">Сохранить</string>
 </resources>

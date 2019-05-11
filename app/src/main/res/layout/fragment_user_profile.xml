@@ -77,10 +77,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="8dp"
             android:text="@string/exit"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/prof_demands" />
+            app:layout_constraintEnd_toEndOf="@+id/spinner_mockup"
+            app:layout_constraintTop_toBottomOf="@+id/spinner_mockup" />
 
         <EditText
             android:id="@+id/prof_country"
@@ -139,16 +139,44 @@
             app:layout_constraintBottom_toTopOf="@+id/prof_demands"
             app:layout_constraintStart_toStartOf="@+id/prof_demands" />
 
-        <Button
-            android:id="@+id/map_button"
-            style="@style/ButtonStyle"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_marginBottom="8dp"
+            style="@style/captionStyle"
+            android:text="@string/my_routes"
+            app:layout_constraintBottom_toTopOf="@+id/spinner_mockup"
+            app:layout_constraintStart_toStartOf="@+id/spinner_mockup" />
+
+        <LinearLayout
+            android:id="@+id/spinner_mockup"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="16dp"
-            android:text="карта"
+            android:layout_marginTop="36dp"
+            android:background="@drawable/border"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/prof_demands"
             app:layout_constraintStart_toStartOf="@+id/prof_demands"
-            app:layout_constraintTop_toBottomOf="@+id/prof_demands" />
+            app:layout_constraintTop_toBottomOf="@+id/prof_demands">
+
+            <TextView
+                android:id="@+id/spinner_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="6dp"
+                android:layout_weight="10"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                tools:text="TextView" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_expand_more_black_24dp" />
+        </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>
