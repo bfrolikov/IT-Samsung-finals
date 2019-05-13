@@ -1,6 +1,7 @@
 package com.example.bfrol.it_samsung_finals;
 
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,7 +22,6 @@ import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,7 +64,7 @@ public class ChatActivity extends AppCompatActivity {
                         newChatRoom.put("user1",firebaseUser.getUid());
                         newChatRoom.put("user2",user.getuID());
                         firestore.collection("rooms").add(newChatRoom).addOnSuccessListener(documentReference -> {
-                            Message firstMessage = new Message(firebaseUser.getUid(),user.getuID(),"Hello, i'm interested",new Date());//generate automatic message
+                            Message firstMessage = new Message(firebaseUser.getUid(),user.getuID(),"Hello, i'm interested",new Date(), "", new ArrayList<>());//generate automatic message
                             documentReference.collection("messages").add(firstMessage).addOnSuccessListener(documentReference1 -> {
                                 documentReference1.get().addOnSuccessListener(documentSnapshot -> {
                                     adapter.addMessage(documentSnapshot);
@@ -107,7 +107,7 @@ public class ChatActivity extends AppCompatActivity {
         buttonChatBoxSend.setOnClickListener(sender->{
             if(activeCollection!=null && !editTextChatBox.getText().toString().isEmpty())
             {
-                Message newMessage = new Message(firebaseUser.getUid(),user.getuID(),editTextChatBox.getText().toString(),new Date());
+                Message newMessage = new Message(firebaseUser.getUid(),user.getuID(),editTextChatBox.getText().toString(),new Date(), "", new ArrayList<>());
                 editTextChatBox.setText("");
                 activeCollection.add(newMessage).addOnSuccessListener(documentReference -> { //add message to the database
                     documentReference.get().addOnSuccessListener(documentSnapshot -> {
@@ -121,6 +121,14 @@ public class ChatActivity extends AppCompatActivity {
         });
         routeButton.setOnClickListener(sender->{
             //TODO open available routes dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            ArrayList<String> routeNames = new ArrayList<>(MainActivity.currentUser.getRoutes().keySet());
+            final String[] options = routeNames.toArray(new String[0]);
+            builder.setTitle(R.string.my_routes);
+            builder.setItems(options,(dialog, which) -> {
+
+            });
+            builder.create().show();
         });
     }
 }

@@ -108,23 +108,17 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
                     //in case the user is stored in cache
                     if (currentUser != null)
                         constructFragment(new UserProfileFragment());
-                    else {
-                        constructFragment(new ProgressBarFragment());
-                        DocumentReference docRef = database.collection("users").document(firebaseAuth.getCurrentUser().getUid());
-                        docRef.get().addOnSuccessListener(documentSnapshot -> {
-                            currentUser = documentSnapshot.toObject(User.class);
-                            constructFragment(new UserProfileFragment());
-                        });
-                    }
                     updateMenu(MENU_WITHOUT_SEARCH);
                     return true;
                 case R.id.navigation_messages:
-                    constructFragment(new MessageFragment());
+                    if (currentUser != null)
+                        constructFragment(new MessageFragment());
                     updateMenu(MENU_WITHOUT_SEARCH);
                     return true;
                 case R.id.navigation_search:
                     //the search menu was opened so an instance of SearchFragment is inflated and inserted into the UI
-                    constructFragment(new SearchFragment());
+                    if (currentUser != null)
+                        constructFragment(new SearchFragment());
                     updateMenu(MENU_WITH_SEARCH);
                     return true;
             }
@@ -136,13 +130,28 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         database = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFunctions = FirebaseFunctions.getInstance();
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        constructFragment(new ProgressBarFragment());
+        DocumentReference docRef = database.collection("users").document(firebaseAuth.getCurrentUser().getUid());
+        docRef.get().addOnSuccessListener(documentSnapshot -> {
+            currentUser = documentSnapshot.toObject(User.class);
+            int id = navigation.getSelectedItemId();
+            switch (id)
+            {
+                case R.id.navigation_profile:
+                    constructFragment(new UserProfileFragment());
+                case R.id.navigation_messages:
+                    constructFragment(new MessageFragment());
+                case R.id.navigation_search:
+                    constructFragment(new SearchFragment());
+            }
+        });
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         adapter = new CustomRecyclerViewAdapter(new ArrayList<>());
         userImage = getDrawable(R.drawable.user_placeholder);
         loadProfileImageFromCloud();
