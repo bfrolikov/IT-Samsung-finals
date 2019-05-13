@@ -44,7 +44,13 @@
             android:background="@android:color/transparent"
             android:hint="@string/enter_message"
             android:maxLines="6" />
-
+        <ImageButton
+            android:id="@+id/route_button"
+            android:layout_width="45dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/ic_route"/>
         <ImageButton
             android:id="@+id/button_chatbox_send"
             android:layout_width="45dp"

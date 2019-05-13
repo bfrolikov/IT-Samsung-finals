@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:paddingBottom="3dp"
+    android:layout_marginBottom="13dp">
+
+    <ImageView
+        android:id="@+id/route_received_background"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_marginStart="15dp"
+        android:src="@drawable/message_received_background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/received_map_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="9dp"
+        app:layout_constraintBottom_toBottomOf="@+id/route_received_background"
+        app:layout_constraintEnd_toEndOf="@+id/route_received_background"
+        app:layout_constraintStart_toStartOf="@+id/route_received_background"
+        app:layout_constraintTop_toTopOf="@+id/route_received_background" />
+
+    <TextView
+        android:id="@+id/route_received_time"
+        style="@style/TextAppearance.MaterialComponents.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="@+id/route_received_background"
+        app:layout_constraintStart_toEndOf="@+id/route_received_background"
+        tools:text="11:50" />
+
+</android.support.constraint.ConstraintLayout>

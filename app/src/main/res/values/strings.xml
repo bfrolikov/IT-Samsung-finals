@@ -51,4 +51,8 @@
     <string name="new_route">Новый маршрут</string>
     <string name="enable_providers">Пожалуйста, включите GPS и Интернет</string>
     <string name="save">Сохранить</string>
+    <string name="close">Закрыть</string>
+    <string name="copy_noun">копия</string>
+    <string name="beginning">Начало</string>
+    <string name="end">Конец</string>
 </resources>

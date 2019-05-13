@@ -39,6 +39,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:id="@+id/map_ok_button"
         android:layout_width="0dp"
         android:layout_height="55dp"
         style="@style/AccentButtonStyle"

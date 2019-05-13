@@ -31,6 +31,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatRecyclerViewAdapter adapter;
     private EditText editTextChatBox;
     private ImageButton buttonChatBoxSend;
+    private ImageButton routeButton;
     private CollectionReference activeCollection;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +40,7 @@ public class ChatActivity extends AppCompatActivity {
         chatReycler = findViewById(R.id.chat_recycler_view);
         editTextChatBox = findViewById(R.id.edittext_chatbox);
         buttonChatBoxSend = findViewById(R.id.button_chatbox_send);
+        routeButton = findViewById(R.id.route_button);
         activeCollection = null;
         Bundle bundle = getIntent().getExtras();
         User user = (User) bundle.getSerializable(SelectedUserProfileActivity.USER_KEY);
@@ -103,7 +105,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
         buttonChatBoxSend.setOnClickListener(sender->{
-            if(activeCollection!=null)
+            if(activeCollection!=null && !editTextChatBox.getText().toString().isEmpty())
             {
                 Message newMessage = new Message(firebaseUser.getUid(),user.getuID(),editTextChatBox.getText().toString(),new Date());
                 editTextChatBox.setText("");
@@ -116,6 +118,9 @@ public class ChatActivity extends AppCompatActivity {
                     });
                 });
             }
+        });
+        routeButton.setOnClickListener(sender->{
+            //TODO open available routes dialog
         });
     }
 }

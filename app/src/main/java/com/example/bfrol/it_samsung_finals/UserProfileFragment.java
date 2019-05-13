@@ -36,7 +36,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class UserProfileFragment extends Fragment {
     private ProfileFragmentInterface activityInterface;//interface to tell the activity to close when the user has logged out
     private ArrayList<String> routes;
-    public static String ROUTE_NAME_KEY = "routenamekey";
+    public static final String ROUTE_NAME_KEY = "routenamekey";
+    public static final String MODE_KEY = "modekey";
     @Nullable
     @Override
     //this fragment is responsible for the user profile
@@ -112,12 +113,14 @@ public class UserProfileFragment extends Fragment {
             {
                 //add new
                 Intent openMapActivity = new Intent(getContext(),MapActivity.class);
+                openMapActivity.putExtra(MODE_KEY,MapActivity.MODE_ADD);
                 startActivity(openMapActivity);
             }
             else
             {
                 Intent openMapActivity = new Intent(getContext(),MapActivity.class);
                 openMapActivity.putExtra(ROUTE_NAME_KEY,routes.get(which));
+                openMapActivity.putExtra(MODE_KEY,MapActivity.MODE_EDIT);
                 startActivity(openMapActivity);
             }
         });
