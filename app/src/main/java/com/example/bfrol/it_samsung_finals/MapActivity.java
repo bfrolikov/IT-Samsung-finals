@@ -48,6 +48,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private ArrayList<LatLng> routePoints;
     private FusedLocationProviderClient fusedLocationClient;
     private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
+    public static final String ROUTE_POINTS_KEY = "routepointskey";
     public static final int LOCATION_PERMISSION = 0;
     public static final int MODE_DISPLAY = 1;
     public static final int MODE_EDIT = 2;
@@ -66,9 +67,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         tb.setTitle("");
         setSupportActionBar(tb);
         routePoints = new ArrayList<>();
-        if (mode != MODE_ADD && routeName != null) {
+        if (mode != MODE_ADD && mode!=MODE_DISPLAY &&routeName != null) {
             for (GeoPoint point : MainActivity.currentUser.getRoutes().get(routeName)) {
                 routePoints.add(new LatLng(point.getLatitude(), point.getLongitude()));
+            }
+        }
+        else if (mode==MODE_DISPLAY)
+        {
+            ArrayList<LatLngSerializablePair> serRoutePoints = (ArrayList<LatLngSerializablePair>) intent.getSerializableExtra(ROUTE_POINTS_KEY);
+            if(serRoutePoints!=null) {
+                for (LatLngSerializablePair pair : serRoutePoints) {
+                    routePoints.add(new LatLng(pair.getLatitude(), pair.getLongitude()));
+                }
             }
         }
         Bundle mapViewBundle = null;
@@ -272,17 +282,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
-    interface MapProfileInterface
-    {
-        void updateRoutes();
-    }
 }
 
-//
-                       /* LatLng currentLatLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
-                        CameraPosition.Builder camBuilder = CameraPosition.builder();
-                        camBuilder.zoom(10);
-                        camBuilder.target(currentLatLng);
-                        if (gmap!=null)
-                            gmap.moveCamera(CameraUpdateFactory.newCameraPosition(camBuilder.build()));
-                            */
+
