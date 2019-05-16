@@ -1,7 +1,14 @@
 package com.example.bfrol.it_samsung_finals;
 
 import android.app.DownloadManager;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,15 +19,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -35,7 +48,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity{
     private RecyclerView chatReycler;
     private ChatRecyclerViewAdapter adapter;
     private EditText editTextChatBox;
@@ -113,7 +126,7 @@ public class ChatActivity extends AppCompatActivity {
                 });
             }
         });
-        buttonChatBoxSend.setOnClickListener(sender->{
+        buttonChatBoxSend.setOnClickListener(caller->{
             if(activeCollection!=null && !editTextChatBox.getText().toString().isEmpty())
             {
                 Message newMessage = new Message(firebaseUser.getUid(),user.getuID(),editTextChatBox.getText().toString(),new Date(), "", new ArrayList<>());
@@ -135,170 +148,233 @@ public class ChatActivity extends AppCompatActivity {
             final String[] options = routeNames.toArray(new String[0]);
             builder.setTitle(R.string.my_routes);
             builder.setItems(options,(dialog, which) -> {
-
+                if(activeCollection!=null) {
+                    Message newMessage = new Message(firebaseUser.getUid(), user.getuID(), "", new Date(), options[which], MainActivity.currentUser.getRoutes().get(options[which]));
+                    activeCollection.add(newMessage).addOnSuccessListener(documentReference -> {
+                        documentReference.get().addOnSuccessListener(documentSnapshot -> {
+                            adapter.addMessage(documentSnapshot);
+                            adapter.notifyDataSetChanged();
+                            chatReycler.scrollToPosition(adapter.getItemCount());
+                        });
+                    });
+                }
             });
             builder.create().show();
         });
     }
-}
-class ChatRecyclerViewAdapter extends RecyclerView.Adapter
-{
-    private static final int VIEW_TYPE_MESSAGE_SENT = 1;
-    private static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
-    private static final int VIEW_TYPE_ROUTE_SENT = 3;
-    private static final int VIEW_TYPE_ROUTE_RECEIVED = 4;
-    private ArrayList<DocumentSnapshot> messages;
-    private FirebaseUser firebaseUser;
-    public ChatRecyclerViewAdapter(ArrayList<DocumentSnapshot> messages, FirebaseUser firebaseUser) {
-        this.messages = messages;
-        this.firebaseUser = firebaseUser;
-    }
-    @NonNull
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_MESSAGE_SENT)
-        {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_sent,parent,false);
-            return new SentMessageViewHolder(v);
+    class ChatRecyclerViewAdapter extends RecyclerView.Adapter
+    {
+        private static final int VIEW_TYPE_MESSAGE_SENT = 1;
+        private static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
+        private static final int VIEW_TYPE_ROUTE_SENT = 3;
+        private static final int VIEW_TYPE_ROUTE_RECEIVED = 4;
+        private ArrayList<DocumentSnapshot> messages;
+        private FirebaseUser firebaseUser;
+        public ChatRecyclerViewAdapter(ArrayList<DocumentSnapshot> messages, FirebaseUser firebaseUser) {
+            this.messages = messages;
+            this.firebaseUser = firebaseUser;
         }
-        else{
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_received,parent,false);
-            return new ReceivedMessageViewHolder(v);
+        @NonNull
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            if (viewType == VIEW_TYPE_MESSAGE_SENT)
+            {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_sent,parent,false);
+                return new SentMessageViewHolder(v);
+            }
+            else if (viewType==VIEW_TYPE_MESSAGE_RECEIVED){
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_received,parent,false);
+                return new ReceivedMessageViewHolder(v);
+            }
+            else if (viewType==VIEW_TYPE_ROUTE_SENT)
+            {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.route_sent,parent,false);
+                return new SentRouteViewHolder(v);
+            }
+            else  //(viewType==VIEW_TYPE_ROUTE_RECEIVED)
+            {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.route_received,parent,false);
+                return new ReceivedRouteViewHolder(v);
+            }
         }
-    }
 
-    @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
-        Message message = messages.get(position).toObject(Message.class);
-        if(viewHolder.getItemViewType() == VIEW_TYPE_MESSAGE_SENT)
-        {
-            ((SentMessageViewHolder)viewHolder).sentMessage.setText(message.getText());
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-            ((SentMessageViewHolder)viewHolder).sentTime.setText(simpleDateFormat.format(message.getTime()));
-        }
-        else if (viewHolder.getItemViewType() == VIEW_TYPE_MESSAGE_RECEIVED)
-        {
-            ((ReceivedMessageViewHolder)viewHolder).receivedMessage.setText(message.getText());
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-            ((ReceivedMessageViewHolder)viewHolder).receivedTime.setText(simpleDateFormat.format(message.getTime()));
-        }
-        else if (viewHolder.getItemViewType() == VIEW_TYPE_ROUTE_SENT)
-        {
-            SentRouteViewHolder routeViewHolder = (SentRouteViewHolder) viewHolder;
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-            routeViewHolder.routeSentTime.setText(simpleDateFormat.format(message.getTime()));
-            routeViewHolder.sentMap.getMapAsync(googleMap -> {
-                UiSettings uiSettings = googleMap.getUiSettings();
-                uiSettings.setAllGesturesEnabled(false);
-                uiSettings.setIndoorLevelPickerEnabled(false);
-                uiSettings.setMyLocationButtonEnabled(false);
-                uiSettings.setMapToolbarEnabled(false);
-                uiSettings.setZoomControlsEnabled(false);
-                ArrayList<GeoPoint> routePoints = message.getRoutePoints();
-                if(!routePoints.isEmpty())
-                {
-                    LatLng firstPoint = new LatLng(routePoints.get(0).getLatitude(),routePoints.get(0).getLongitude());
-                    CameraPosition.Builder builder = CameraPosition.builder();
-                    builder.zoom(10);
-                    builder.target(firstPoint);
-                    googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-                }
-            });
-        }
-        else if(viewHolder.getItemViewType()==VIEW_TYPE_ROUTE_RECEIVED)
-        {
-            ReceivedRouteViewHolder routeViewHolder = (ReceivedRouteViewHolder) viewHolder;
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-            routeViewHolder.routeReceivedTime.setText(simpleDateFormat.format(message.getTime()));
-            routeViewHolder.receivedMap.getMapAsync(googleMap -> {
-                UiSettings uiSettings = googleMap.getUiSettings();
-                uiSettings.setAllGesturesEnabled(false);
-                uiSettings.setIndoorLevelPickerEnabled(false);
-                uiSettings.setMyLocationButtonEnabled(false);
-                uiSettings.setMapToolbarEnabled(false);
-                uiSettings.setZoomControlsEnabled(false);
-                ArrayList<GeoPoint> routePoints = message.getRoutePoints();
-                if(!routePoints.isEmpty())
-                {
-                    LatLng firstPoint = new LatLng(routePoints.get(0).getLatitude(),routePoints.get(0).getLongitude());
-                    CameraPosition.Builder builder = CameraPosition.builder();
-                    builder.zoom(10);
-                    builder.target(firstPoint);
-                    googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-                }
-            });
-        }
-    }
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
+            Message message = messages.get(position).toObject(Message.class);
+            if(viewHolder.getItemViewType() == VIEW_TYPE_MESSAGE_SENT)
+            {
+                ((SentMessageViewHolder)viewHolder).sentMessage.setText(message.getText());
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                ((SentMessageViewHolder)viewHolder).sentTime.setText(simpleDateFormat.format(message.getTime()));
+            }
+            else if (viewHolder.getItemViewType() == VIEW_TYPE_MESSAGE_RECEIVED)
+            {
+                ((ReceivedMessageViewHolder)viewHolder).receivedMessage.setText(message.getText());
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                ((ReceivedMessageViewHolder)viewHolder).receivedTime.setText(simpleDateFormat.format(message.getTime()));
+            }
+            else if (viewHolder.getItemViewType() == VIEW_TYPE_ROUTE_SENT)
+            {
+                SentRouteViewHolder routeViewHolder = (SentRouteViewHolder) viewHolder;
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                routeViewHolder.routeSentTime.setText(simpleDateFormat.format(message.getTime()));
+                routeViewHolder.sentMap.onCreate(null);
+                routeViewHolder.sentMap.getMapAsync(googleMap -> {
+                    ArrayList<GeoPoint> routePoints = message.getRoutePoints();
+                    if(!routePoints.isEmpty())
+                    {
+                        for (int i = 0; i < routePoints.size(); i++) {
+                            GeoPoint point = routePoints.get(i);
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            markerOptions.position(new LatLng(point.getLatitude(), point.getLongitude()));
+                            if (i == 0)
+                                markerOptions.icon(bitmapDescriptorFromVector(routeViewHolder.routeSentTime.getContext(), R.drawable.ic_start_marker));
+                            else if (i == routePoints.size() - 1 && routePoints.size() != 1)
+                                markerOptions.icon(bitmapDescriptorFromVector(routeViewHolder.routeSentTime.getContext(), R.drawable.ic_finish_marker));
+                            googleMap.addMarker(markerOptions);
+                        }
+                        LatLng firstPoint = new LatLng(routePoints.get(0).getLatitude(),routePoints.get(0).getLongitude());
+                        CameraPosition.Builder builder = CameraPosition.builder();
+                        builder.zoom(10);
+                        builder.target(firstPoint);
+                        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+                    }
+                    googleMap.setOnMapClickListener(latLng -> {
+                        Intent openMapActivity = new Intent(routeViewHolder.routeSentTime.getContext(),MapActivity.class);
+                        openMapActivity.putExtra(UserProfileFragment.MODE_KEY,MapActivity.MODE_DISPLAY);
+                        openMapActivity.putExtra(UserProfileFragment.ROUTE_NAME_KEY,message.getRouteName());
+                        ArrayList<LatLngSerializablePair> serRoute = new ArrayList<>();
+                        for(GeoPoint point:routePoints)
+                        {
+                            serRoute.add(new LatLngSerializablePair(point.getLatitude(),point.getLongitude()));
+                        }
+                        openMapActivity.putExtra(MapActivity.ROUTE_POINTS_KEY,serRoute);
+                        startActivity(openMapActivity);
+                    });
+                });
+            }
+            else if(viewHolder.getItemViewType()==VIEW_TYPE_ROUTE_RECEIVED)
+            {
+                ReceivedRouteViewHolder routeViewHolder = (ReceivedRouteViewHolder) viewHolder;
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                routeViewHolder.routeReceivedTime.setText(simpleDateFormat.format(message.getTime()));
+                routeViewHolder.receivedMap.onCreate(null);
+                routeViewHolder.receivedMap.getMapAsync(googleMap -> {
+                    ArrayList<GeoPoint> routePoints = message.getRoutePoints();
+                    if(!routePoints.isEmpty())
+                    {
+                        for (int i = 0; i < routePoints.size(); i++) {
+                            GeoPoint point = routePoints.get(i);
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            markerOptions.position(new LatLng(point.getLatitude(), point.getLongitude()));
+                            if (i == 0)
+                                markerOptions.icon(bitmapDescriptorFromVector(routeViewHolder.routeReceivedTime.getContext(), R.drawable.ic_start_marker));
+                            else if (i == routePoints.size() - 1 && routePoints.size() != 1)
+                                markerOptions.icon(bitmapDescriptorFromVector(routeViewHolder.routeReceivedTime.getContext(), R.drawable.ic_finish_marker));
+                            googleMap.addMarker(markerOptions);
+                            googleMap.addMarker(markerOptions);
+                        }
+                        LatLng firstPoint = new LatLng(routePoints.get(0).getLatitude(),routePoints.get(0).getLongitude());
+                        CameraPosition.Builder builder = CameraPosition.builder();
+                        builder.zoom(10);
+                        builder.target(firstPoint);
+                        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+                    }
+                    googleMap.setOnMapClickListener(latLng -> {
+                        Intent openMapActivity = new Intent(routeViewHolder.routeReceivedTime.getContext(),MapActivity.class);
+                        openMapActivity.putExtra(UserProfileFragment.MODE_KEY,MapActivity.MODE_DISPLAY);
+                        openMapActivity.putExtra(UserProfileFragment.ROUTE_NAME_KEY,message.getRouteName());
+                        ArrayList<LatLngSerializablePair> serRoute = new ArrayList<>();
+                        for(GeoPoint point:routePoints)
+                        {
+                            serRoute.add(new LatLngSerializablePair(point.getLatitude(),point.getLongitude()));
+                        }
+                        openMapActivity.putExtra(MapActivity.ROUTE_POINTS_KEY,serRoute);
+                        startActivity(openMapActivity);
+                    });
+                });
 
-    @Override
-    public int getItemCount() {
-        return messages.size();
-    }
+            }
+        }
 
-    @Override
-    public int getItemViewType(int position) {
-        Message currMessage = messages.get(position).toObject(Message.class);
-        if(!currMessage.getRouteName().isEmpty())
-        {
-            if(currMessage.getSender().equals(firebaseUser.getUid()))
-                return VIEW_TYPE_ROUTE_SENT;
+        @Override
+        public int getItemCount() {
+            return messages.size();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            Message currMessage = messages.get(position).toObject(Message.class);
+            if(!currMessage.getRouteName().isEmpty())
+            {
+                if(currMessage.getSender().equals(firebaseUser.getUid()))
+                    return VIEW_TYPE_ROUTE_SENT;
+                else
+                    return VIEW_TYPE_ROUTE_RECEIVED;
+            }
             else
-                return VIEW_TYPE_ROUTE_RECEIVED;
+            {
+                if(currMessage.getSender().equals(firebaseUser.getUid()))
+                    return VIEW_TYPE_MESSAGE_SENT;
+                else
+                    return VIEW_TYPE_MESSAGE_RECEIVED;
+            }
+
         }
-        else
+
+        private class ReceivedMessageViewHolder extends RecyclerView.ViewHolder
         {
-            if(currMessage.getSender().equals(firebaseUser.getUid()))
-                return VIEW_TYPE_MESSAGE_SENT;
-            else
-                return VIEW_TYPE_MESSAGE_RECEIVED;
+            TextView receivedMessage, receivedTime;
+            ReceivedMessageViewHolder(@NonNull View itemView) {
+                super(itemView);
+                receivedMessage = itemView.findViewById(R.id.received_message);
+                receivedTime = itemView.findViewById(R.id.received_time);
+            }
         }
+        private class SentMessageViewHolder extends RecyclerView.ViewHolder
+        {
+            TextView sentMessage, sentTime;
+            SentMessageViewHolder(@NonNull View itemView) {
+                super(itemView);
+                sentMessage = itemView.findViewById(R.id.sent_message);
+                sentTime = itemView.findViewById(R.id.sent_time);
+            }
+        }
+        private class ReceivedRouteViewHolder extends RecyclerView.ViewHolder
+        {
+            MapView receivedMap;
+            TextView routeReceivedTime;
+            public ReceivedRouteViewHolder(@NonNull View itemView) {
+                super(itemView);
+                receivedMap = itemView.findViewById(R.id.received_map);
+                routeReceivedTime = itemView.findViewById(R.id.route_received_time);
+            }
+        }
+        private class SentRouteViewHolder extends RecyclerView.ViewHolder
+        {
+            MapView sentMap;
+            TextView routeSentTime;
+            public SentRouteViewHolder(@NonNull View itemView) {
+                super(itemView);
+                sentMap = itemView.findViewById(R.id.sent_map);
+                routeSentTime = itemView.findViewById(R.id.route_sent_time);
+            }
 
-    }
-
-    private class ReceivedMessageViewHolder extends RecyclerView.ViewHolder
-    {
-        TextView receivedMessage, receivedTime;
-        ReceivedMessageViewHolder(@NonNull View itemView) {
-            super(itemView);
-            receivedMessage = itemView.findViewById(R.id.received_message);
-            receivedTime = itemView.findViewById(R.id.received_time);
         }
-    }
-    private class SentMessageViewHolder extends RecyclerView.ViewHolder
-    {
-        TextView sentMessage, sentTime;
-        SentMessageViewHolder(@NonNull View itemView) {
-            super(itemView);
-            sentMessage = itemView.findViewById(R.id.sent_message);
-            sentTime = itemView.findViewById(R.id.sent_time);
+        public void setMessages(ArrayList<DocumentSnapshot> messages) {
+            this.messages = messages;
         }
-    }
-    private class ReceivedRouteViewHolder extends RecyclerView.ViewHolder
-    {
-        MapView receivedMap;
-        TextView routeReceivedTime;
-        public ReceivedRouteViewHolder(@NonNull View itemView) {
-            super(itemView);
-            receivedMap = itemView.findViewById(R.id.received_map);
-            routeReceivedTime = itemView.findViewById(R.id.route_received_time);
+        public void addMessage(DocumentSnapshot message)
+        {
+            messages.add(message);
         }
-    }
-    private class SentRouteViewHolder extends RecyclerView.ViewHolder
-    {
-        MapView sentMap;
-        TextView routeSentTime;
-        public SentRouteViewHolder(@NonNull View itemView) {
-            super(itemView);
-            sentMap = itemView.findViewById(R.id.sent_map);
-            routeSentTime = itemView.findViewById(R.id.route_sent_time);
+        private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+            Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+            vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+            Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            vectorDrawable.draw(canvas);
+            return BitmapDescriptorFactory.fromBitmap(bitmap);
         }
-
-    }
-    public void setMessages(ArrayList<DocumentSnapshot> messages) {
-        this.messages = messages;
-    }
-    public void addMessage(DocumentSnapshot message)
-    {
-        messages.add(message);
     }
 }

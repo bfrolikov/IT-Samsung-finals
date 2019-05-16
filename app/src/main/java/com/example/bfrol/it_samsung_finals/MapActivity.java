@@ -97,6 +97,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             mapOkButton.setText(R.string.close);
             mapOkButton.setOnClickListener(caller -> {
                 //send info that the user closed the map
+                finish();
             });
         } else if (mode == MODE_EDIT || mode == MODE_ADD) {
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -213,7 +214,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 });
             }
         } else if (mode == MODE_DISPLAY) {
-
+            if(!routePoints.isEmpty()) {
+                CameraPosition.Builder builder = CameraPosition.builder();
+                builder.zoom(10);
+                builder.target(routePoints.get(0));
+                googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+            }
         }
     }
 

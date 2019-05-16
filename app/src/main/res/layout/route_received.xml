@@ -17,6 +17,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.gms.maps.MapView
+        xmlns:map="http://schemas.android.com/apk/res-auto"
         android:id="@+id/received_map"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -24,7 +25,8 @@
         app:layout_constraintBottom_toBottomOf="@+id/route_received_background"
         app:layout_constraintEnd_toEndOf="@+id/route_received_background"
         app:layout_constraintStart_toStartOf="@+id/route_received_background"
-        app:layout_constraintTop_toTopOf="@+id/route_received_background" />
+        app:layout_constraintTop_toTopOf="@+id/route_received_background"
+        map:liteMode="true"/>
 
     <TextView
         android:id="@+id/route_received_time"
