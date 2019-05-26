@@ -26,7 +26,9 @@
         app:layout_constraintEnd_toEndOf="@+id/route_received_background"
         app:layout_constraintStart_toStartOf="@+id/route_received_background"
         app:layout_constraintTop_toTopOf="@+id/route_received_background"
-        map:liteMode="true"/>
+        map:mapType="normal"
+        map:liteMode="true"
+        />
 
     <TextView
         android:id="@+id/route_received_time"

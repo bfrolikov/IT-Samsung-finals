@@ -14,7 +14,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
@@ -38,15 +41,20 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 public class ChatActivity extends AppCompatActivity{
     private RecyclerView chatReycler;
@@ -72,6 +80,37 @@ public class ChatActivity extends AppCompatActivity{
         manager.setStackFromEnd(true);
         chatReycler.setLayoutManager(manager);
         chatReycler.setAdapter(adapter);
+        chatReycler.setHasFixedSize(false);
+        chatReycler.setRecyclerListener(viewHolder -> {
+            if(viewHolder.getItemViewType()==ChatRecyclerViewAdapter.VIEW_TYPE_ROUTE_RECEIVED)
+            {
+                ChatRecyclerViewAdapter.ReceivedRouteViewHolder holder = (ChatRecyclerViewAdapter.ReceivedRouteViewHolder) viewHolder;
+                if(holder.map!=null)
+                {
+
+                    holder.map.clear();
+                    holder.map.setMapType(GoogleMap.MAP_TYPE_NONE);
+                  //  holder.receivedMap.onPause();
+                }
+            }
+            else if (viewHolder.getItemViewType()==ChatRecyclerViewAdapter.VIEW_TYPE_ROUTE_SENT)
+            {
+                ChatRecyclerViewAdapter.SentRouteViewHolder holder = (ChatRecyclerViewAdapter.SentRouteViewHolder) viewHolder;
+                if(holder.map!=null)
+                {
+                    holder.map.clear();
+                    holder.map.setMapType(GoogleMap.MAP_TYPE_NONE);
+                    //holder.sentMap.onPause();
+                }
+
+            }
+        });
+        editTextChatBox.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus && adapter.getItemCount()!=0) {
+                Log.v("testing","yes");
+                chatReycler.scrollToPosition(adapter.getItemCount() - 1);
+            }
+        });
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         Query getRoom1 = firestore.collection("rooms").whereEqualTo("user1",firebaseUser.getUid()).whereEqualTo("user2",user.getuID());
         Query getRoom2 = firestore.collection("rooms").whereEqualTo("user2",firebaseUser.getUid()).whereEqualTo("user1",user.getuID());
@@ -86,14 +125,22 @@ public class ChatActivity extends AppCompatActivity{
                         newChatRoom.put("user1",firebaseUser.getUid());
                         newChatRoom.put("user2",user.getuID());
                         firestore.collection("rooms").add(newChatRoom).addOnSuccessListener(documentReference -> {
+                            activeCollection = documentReference.collection("messages");
+                            activeCollection.
+                                    orderBy("time", Query.Direction.DESCENDING).
+                                    limit(1).
+                                    addSnapshotListener((querySnapshot3, e) ->{
+                                        if(querySnapshot3!=null)
+                                        {
+                                            DocumentSnapshot newMessage = querySnapshot3.getDocuments().get(0);
+                                            adapter.addMessage(newMessage);
+                                            adapter.notifyItemInserted(adapter.getItemCount());
+                                            chatReycler.scrollToPosition(adapter.getItemCount()-1);
+                                        }
+                                    });
                             Message firstMessage = new Message(firebaseUser.getUid(),user.getuID(),"Hello, i'm interested",new Date(), "", new ArrayList<>());//generate automatic message
-                            documentReference.collection("messages").add(firstMessage).addOnSuccessListener(documentReference1 -> {
-                                documentReference1.get().addOnSuccessListener(documentSnapshot -> {
-                                    adapter.addMessage(documentSnapshot);
-                                    adapter.notifyDataSetChanged();
-                                    activeCollection = documentReference.collection("messages");
-                                });
-
+                            activeCollection.add(firstMessage).addOnSuccessListener(documentReference1 -> {
+                                //add new message to the collection
                             });
                         });
                     }
@@ -109,6 +156,18 @@ public class ChatActivity extends AppCompatActivity{
                             adapter.notifyDataSetChanged();
                             chatReycler.scrollToPosition(adapter.getItemCount()-1);
                         });
+                        activeCollection.
+                                orderBy("time", Query.Direction.DESCENDING).
+                                limit(1).
+                                addSnapshotListener((querySnapshot3, e) ->{
+                                    if(querySnapshot3!=null)
+                                    {
+                                        DocumentSnapshot newMessage = querySnapshot3.getDocuments().get(0);
+                                        adapter.addMessage(newMessage);
+                                        adapter.notifyItemInserted(adapter.getItemCount());
+                                        chatReycler.scrollToPosition(adapter.getItemCount()-1);
+                                    }
+                                });
                     }
                 });
             }
@@ -124,6 +183,18 @@ public class ChatActivity extends AppCompatActivity{
                     adapter.notifyDataSetChanged();
                     chatReycler.scrollToPosition(adapter.getItemCount()-1);
                 });
+                activeCollection.
+                        orderBy("time", Query.Direction.DESCENDING).
+                        limit(1).
+                        addSnapshotListener((querySnapshot3, e) ->{
+                            if(querySnapshot3!=null)
+                            {
+                                DocumentSnapshot newMessage = querySnapshot3.getDocuments().get(0);
+                                adapter.addMessage(newMessage);
+                                adapter.notifyItemInserted(adapter.getItemCount());
+                                chatReycler.scrollToPosition(adapter.getItemCount()-1);
+                            }
+                        });
             }
         });
         buttonChatBoxSend.setOnClickListener(caller->{
@@ -132,12 +203,6 @@ public class ChatActivity extends AppCompatActivity{
                 Message newMessage = new Message(firebaseUser.getUid(),user.getuID(),editTextChatBox.getText().toString(),new Date(), "", new ArrayList<>());
                 editTextChatBox.setText("");
                 activeCollection.add(newMessage).addOnSuccessListener(documentReference -> { //add message to the database
-                    documentReference.get().addOnSuccessListener(documentSnapshot -> {
-                        //loaded message from the database
-                        adapter.addMessage(documentSnapshot);
-                        adapter.notifyDataSetChanged();
-                        chatReycler.smoothScrollToPosition(adapter.getItemCount());
-                    });
                 });
             }
         });
@@ -150,12 +215,7 @@ public class ChatActivity extends AppCompatActivity{
             builder.setItems(options,(dialog, which) -> {
                 if(activeCollection!=null) {
                     Message newMessage = new Message(firebaseUser.getUid(), user.getuID(), "", new Date(), options[which], MainActivity.currentUser.getRoutes().get(options[which]));
-                    activeCollection.add(newMessage).addOnSuccessListener(documentReference -> {
-                        documentReference.get().addOnSuccessListener(documentSnapshot -> {
-                            adapter.addMessage(documentSnapshot);
-                            adapter.notifyDataSetChanged();
-                            chatReycler.scrollToPosition(adapter.getItemCount());
-                        });
+                    activeCollection.add(newMessage).addOnSuccessListener(documentReference -> {//add message to the database
                     });
                 }
             });
@@ -189,11 +249,13 @@ public class ChatActivity extends AppCompatActivity{
             else if (viewType==VIEW_TYPE_ROUTE_SENT)
             {
                 View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.route_sent,parent,false);
+                Log.v("measure",String.valueOf(v.getMeasuredHeight()));
                 return new SentRouteViewHolder(v);
             }
             else  //(viewType==VIEW_TYPE_ROUTE_RECEIVED)
             {
                 View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.route_received,parent,false);
+                Log.v("measure",String.valueOf(v.getMeasuredHeight()));
                 return new ReceivedRouteViewHolder(v);
             }
         }
@@ -216,8 +278,8 @@ public class ChatActivity extends AppCompatActivity{
             else if (viewHolder.getItemViewType() == VIEW_TYPE_ROUTE_SENT)
             {
                 SentRouteViewHolder routeViewHolder = (SentRouteViewHolder) viewHolder;
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-                routeViewHolder.routeSentTime.setText(simpleDateFormat.format(message.getTime()));
+                routeViewHolder.bind(message);
+                /*
                 routeViewHolder.sentMap.onCreate(null);
                 routeViewHolder.sentMap.getMapAsync(googleMap -> {
                     ArrayList<GeoPoint> routePoints = message.getRoutePoints();
@@ -252,12 +314,14 @@ public class ChatActivity extends AppCompatActivity{
                         startActivity(openMapActivity);
                     });
                 });
+                */
             }
             else if(viewHolder.getItemViewType()==VIEW_TYPE_ROUTE_RECEIVED)
             {
                 ReceivedRouteViewHolder routeViewHolder = (ReceivedRouteViewHolder) viewHolder;
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-                routeViewHolder.routeReceivedTime.setText(simpleDateFormat.format(message.getTime()));
+                routeViewHolder.bind(message);
+
+                /*
                 routeViewHolder.receivedMap.onCreate(null);
                 routeViewHolder.receivedMap.getMapAsync(googleMap -> {
                     ArrayList<GeoPoint> routePoints = message.getRoutePoints();
@@ -293,9 +357,10 @@ public class ChatActivity extends AppCompatActivity{
                         startActivity(openMapActivity);
                     });
                 });
-
+                */
             }
         }
+
 
         @Override
         public int getItemCount() {
@@ -340,24 +405,144 @@ public class ChatActivity extends AppCompatActivity{
                 sentTime = itemView.findViewById(R.id.sent_time);
             }
         }
-        private class ReceivedRouteViewHolder extends RecyclerView.ViewHolder
+        private class ReceivedRouteViewHolder extends RecyclerView.ViewHolder implements OnMapReadyCallback
         {
             MapView receivedMap;
             TextView routeReceivedTime;
+            GoogleMap map;
             public ReceivedRouteViewHolder(@NonNull View itemView) {
                 super(itemView);
                 receivedMap = itemView.findViewById(R.id.received_map);
                 routeReceivedTime = itemView.findViewById(R.id.route_received_time);
+                receivedMap.onCreate(null);
+                receivedMap.onResume();
+                receivedMap.getMapAsync(this);
+            }
+
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                MapsInitializer.initialize(getApplicationContext());
+                map = googleMap;
+                setMapRoute();
+
+            }
+            void bind(Message message)
+            {
+                receivedMap.setTag(message);
+                setMapRoute();
+
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                routeReceivedTime.setText(simpleDateFormat.format(message.getTime()));
+            }
+            void setMapRoute()
+            {
+                if(map == null) return;
+                Message message = (Message) receivedMap.getTag();
+                if(message==null) return;
+                //TODO set route and move camera
+                ArrayList<GeoPoint> routePoints = message.getRoutePoints();
+                if(!routePoints.isEmpty())
+                {
+                    for (int i = 0; i < routePoints.size(); i++) {
+                        GeoPoint point = routePoints.get(i);
+                        MarkerOptions markerOptions = new MarkerOptions();
+                        markerOptions.position(new LatLng(point.getLatitude(), point.getLongitude()));
+                        if (i == 0)
+                            markerOptions.icon(bitmapDescriptorFromVector(routeReceivedTime.getContext(), R.drawable.ic_start_marker));
+                        else if (i == routePoints.size() - 1 && routePoints.size() != 1)
+                            markerOptions.icon(bitmapDescriptorFromVector(routeReceivedTime.getContext(), R.drawable.ic_finish_marker));
+                        map.addMarker(markerOptions);
+                        map.addMarker(markerOptions);
+                    }
+                    LatLng firstPoint = new LatLng(routePoints.get(0).getLatitude(),routePoints.get(0).getLongitude());
+                    CameraPosition.Builder builder = CameraPosition.builder();
+                    builder.zoom(10);
+                    builder.target(firstPoint);
+                    map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+                }
+                map.setOnMapClickListener(latLng -> {
+                    Intent openMapActivity = new Intent(routeReceivedTime.getContext(),MapActivity.class);
+                    openMapActivity.putExtra(UserProfileFragment.MODE_KEY,MapActivity.MODE_DISPLAY);
+                    openMapActivity.putExtra(UserProfileFragment.ROUTE_NAME_KEY,message.getRouteName());
+                    ArrayList<LatLngSerializablePair> serRoute = new ArrayList<>();
+                    for(GeoPoint point:routePoints)
+                    {
+                        serRoute.add(new LatLngSerializablePair(point.getLatitude(),point.getLongitude()));
+                    }
+                    openMapActivity.putExtra(MapActivity.ROUTE_POINTS_KEY,serRoute);
+                    startActivity(openMapActivity);
+                });
+                map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
             }
         }
-        private class SentRouteViewHolder extends RecyclerView.ViewHolder
+        private class SentRouteViewHolder extends RecyclerView.ViewHolder implements OnMapReadyCallback
         {
             MapView sentMap;
             TextView routeSentTime;
+            GoogleMap map;
             public SentRouteViewHolder(@NonNull View itemView) {
                 super(itemView);
                 sentMap = itemView.findViewById(R.id.sent_map);
                 routeSentTime = itemView.findViewById(R.id.route_sent_time);
+                sentMap.onCreate(null);
+                sentMap.onResume();
+                sentMap.getMapAsync(this);
+            }
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                MapsInitializer.initialize(getApplicationContext());
+                map = googleMap;
+                setMapRoute();
+            }
+            void bind(Message message)
+            {
+                sentMap.setTag(message);
+                setMapRoute();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                routeSentTime.setText(simpleDateFormat.format(message.getTime()));
+            }
+            void setMapRoute()
+            {
+                if(map == null) return;
+                Message message = (Message) sentMap.getTag();
+
+                if(message==null) return;
+                //TODO set route and move camera
+
+                ArrayList<GeoPoint> routePoints = message.getRoutePoints();
+                if(!routePoints.isEmpty())
+                {
+                    for (int i = 0; i < routePoints.size(); i++) {
+                        GeoPoint point = routePoints.get(i);
+                        MarkerOptions markerOptions = new MarkerOptions();
+                        markerOptions.position(new LatLng(point.getLatitude(), point.getLongitude()));
+                        if (i == 0)
+                            markerOptions.icon(bitmapDescriptorFromVector(routeSentTime.getContext(), R.drawable.ic_start_marker));
+                        else if (i == routePoints.size() - 1 && routePoints.size() != 1)
+                            markerOptions.icon(bitmapDescriptorFromVector(routeSentTime.getContext(), R.drawable.ic_finish_marker));
+                        map.addMarker(markerOptions);
+                    }
+                    LatLng firstPoint = new LatLng(routePoints.get(0).getLatitude(),routePoints.get(0).getLongitude());
+                    CameraPosition.Builder builder = CameraPosition.builder();
+                    builder.zoom(10);
+                    builder.target(firstPoint);
+                    map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+                }
+                map.setOnMapClickListener(latLng -> {
+                    Intent openMapActivity = new Intent(routeSentTime.getContext(),MapActivity.class);
+                    openMapActivity.putExtra(UserProfileFragment.MODE_KEY,MapActivity.MODE_DISPLAY);
+                    openMapActivity.putExtra(UserProfileFragment.ROUTE_NAME_KEY,message.getRouteName());
+                    ArrayList<LatLngSerializablePair> serRoute = new ArrayList<>();
+                    for(GeoPoint point:routePoints)
+                    {
+                        serRoute.add(new LatLngSerializablePair(point.getLatitude(),point.getLongitude()));
+                    }
+                    openMapActivity.putExtra(MapActivity.ROUTE_POINTS_KEY,serRoute);
+                    startActivity(openMapActivity);
+                });
+                map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
             }
 
         }
