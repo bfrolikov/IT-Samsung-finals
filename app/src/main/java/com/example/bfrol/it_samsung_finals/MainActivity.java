@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
     private Toolbar toolbar;
     private Menu menu;
     private Uri imageUri;
+    private BottomNavigationView navigation;
     static Drawable userImage;
     static CustomRecyclerViewAdapter adapter; //adapter for the search fragment
     static User currentUser; //a static field for the user class stored in cache
@@ -121,6 +122,9 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
                         constructFragment(new SearchFragment());
                     updateMenu(MENU_WITH_SEARCH);
                     return true;
+                case R.id.navigation_excursions:
+                    updateMenu(MENU_WITHOUT_SEARCH);
+                    return true;
             }
             return false;
         }
@@ -133,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
         database = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFunctions = FirebaseFunctions.getInstance();
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         constructFragment(new ProgressBarFragment());
         DocumentReference docRef = database.collection("users").document(firebaseAuth.getCurrentUser().getUid());
@@ -372,7 +376,8 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
                     ArrayList<User> newUsers = gson.fromJson(response.body().string(),listType);
                     adapter.setDataArray(newUsers);
                     adapter.notifyDataSetChanged();
-                    constructFragment(new SearchFragment());
+                    if(navigation.getSelectedItemId()==R.id.navigation_search)
+                        constructFragment(new SearchFragment());
                 }
             });
         }

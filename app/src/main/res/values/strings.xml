@@ -57,4 +57,5 @@
     <string name="end">Конец</string>
     <string name="add_to_calendar">Добавить событие в календарь</string>
     <string name="excursion_with_user">Экскурсия с пользователем</string>
+    <string name="excursions">Экскурсии</string>
 </resources>
