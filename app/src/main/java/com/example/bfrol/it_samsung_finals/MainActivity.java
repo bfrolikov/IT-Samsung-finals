@@ -123,6 +123,8 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
                     updateMenu(MENU_WITH_SEARCH);
                     return true;
                 case R.id.navigation_excursions:
+                    if(currentUser!=null)
+                        constructFragment(new ExcursionsFragment());
                     updateMenu(MENU_WITHOUT_SEARCH);
                     return true;
             }
@@ -148,10 +150,20 @@ public class MainActivity extends AppCompatActivity implements UserProfileFragme
             {
                 case R.id.navigation_profile:
                     constructFragment(new UserProfileFragment());
+                    Log.v("navid","prof");
+                    break;
                 case R.id.navigation_messages:
                     constructFragment(new MessageFragment());
+                    Log.v("navid","msg");
+                    break;
                 case R.id.navigation_search:
                     constructFragment(new SearchFragment());
+                    Log.v("navid","srch");
+                    break;
+                case R.id.navigation_excursions:
+                    constructFragment(new ExcursionsFragment());
+                    Log.v("navid","exc");
+                    break;
             }
         });
         toolbar = findViewById(R.id.toolbar);

@@ -67,22 +67,22 @@ public class ChatActivity extends AppCompatActivity{
     private ImageButton routeButton;
     private Toolbar chatToolbar;
     private CollectionReference activeCollection;
-    private Button addToCalendarButton;
+    private User user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         chatToolbar = findViewById(R.id.chat_toolbar);
-        chatToolbar.setTitle("");
-        setSupportActionBar(chatToolbar);
+
         chatReycler = findViewById(R.id.chat_recycler_view);
         editTextChatBox = findViewById(R.id.edittext_chatbox);
         buttonChatBoxSend = findViewById(R.id.button_chatbox_send);
         routeButton = findViewById(R.id.route_button);
-        addToCalendarButton = findViewById(R.id.add_to_calendar_button);
         activeCollection = null;
         Bundle bundle = getIntent().getExtras();
-        User user = (User) bundle.getSerializable(SelectedUserProfileActivity.USER_KEY);
+        user = (User) bundle.getSerializable(SelectedUserProfileActivity.USER_KEY);
+        chatToolbar.setTitle(user.getFirstName()+" "+user.getLastName());
+        setSupportActionBar(chatToolbar);
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         adapter = new ChatRecyclerViewAdapter(new ArrayList<>(), firebaseUser);
         LinearLayoutManager manager = new LinearLayoutManager(this);
@@ -230,13 +230,13 @@ public class ChatActivity extends AppCompatActivity{
             });
             builder.create().show();
         });
-        addToCalendarButton.setOnClickListener(caller->{
+      /*  addToCalendarButton.setOnClickListener(caller->{
             Intent openCalendarIntent = new Intent(Intent.ACTION_INSERT)
                     .setData(CalendarContract.Events.CONTENT_URI)
                     .putExtra(CalendarContract.Events.TITLE,getResources().getString(R.string.excursion_with_user)+" "+user.getFirstName()+" "+user.getLastName())
                     .putExtra(CalendarContract.Events.EVENT_LOCATION,user.getCountry()+", "+user.getCity());
             startActivity(openCalendarIntent);
-        });
+        });*/
     }
     class ChatRecyclerViewAdapter extends RecyclerView.Adapter
     {
@@ -295,85 +295,12 @@ public class ChatActivity extends AppCompatActivity{
             {
                 SentRouteViewHolder routeViewHolder = (SentRouteViewHolder) viewHolder;
                 routeViewHolder.bind(message);
-                /*
-                routeViewHolder.sentMap.onCreate(null);
-                routeViewHolder.sentMap.getMapAsync(googleMap -> {
-                    ArrayList<GeoPoint> routePoints = message.getRoutePoints();
-                    if(!routePoints.isEmpty())
-                    {
-                        for (int i = 0; i < routePoints.size(); i++) {
-                            GeoPoint point = routePoints.get(i);
-                            MarkerOptions markerOptions = new MarkerOptions();
-                            markerOptions.position(new LatLng(point.getLatitude(), point.getLongitude()));
-                            if (i == 0)
-                                markerOptions.icon(bitmapDescriptorFromVector(routeViewHolder.routeSentTime.getContext(), R.drawable.ic_start_marker));
-                            else if (i == routePoints.size() - 1 && routePoints.size() != 1)
-                                markerOptions.icon(bitmapDescriptorFromVector(routeViewHolder.routeSentTime.getContext(), R.drawable.ic_finish_marker));
-                            googleMap.addMarker(markerOptions);
-                        }
-                        LatLng firstPoint = new LatLng(routePoints.get(0).getLatitude(),routePoints.get(0).getLongitude());
-                        CameraPosition.Builder builder = CameraPosition.builder();
-                        builder.zoom(10);
-                        builder.target(firstPoint);
-                        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-                    }
-                    googleMap.setOnMapClickListener(latLng -> {
-                        Intent openMapActivity = new Intent(routeViewHolder.routeSentTime.getContext(),MapActivity.class);
-                        openMapActivity.putExtra(UserProfileFragment.MODE_KEY,MapActivity.MODE_DISPLAY);
-                        openMapActivity.putExtra(UserProfileFragment.ROUTE_NAME_KEY,message.getRouteName());
-                        ArrayList<LatLngSerializablePair> serRoute = new ArrayList<>();
-                        for(GeoPoint point:routePoints)
-                        {
-                            serRoute.add(new LatLngSerializablePair(point.getLatitude(),point.getLongitude()));
-                        }
-                        openMapActivity.putExtra(MapActivity.ROUTE_POINTS_KEY,serRoute);
-                        startActivity(openMapActivity);
-                    });
-                });
-                */
             }
             else if(viewHolder.getItemViewType()==VIEW_TYPE_ROUTE_RECEIVED)
             {
                 ReceivedRouteViewHolder routeViewHolder = (ReceivedRouteViewHolder) viewHolder;
                 routeViewHolder.bind(message);
 
-                /*
-                routeViewHolder.receivedMap.onCreate(null);
-                routeViewHolder.receivedMap.getMapAsync(googleMap -> {
-                    ArrayList<GeoPoint> routePoints = message.getRoutePoints();
-                    if(!routePoints.isEmpty())
-                    {
-                        for (int i = 0; i < routePoints.size(); i++) {
-                            GeoPoint point = routePoints.get(i);
-                            MarkerOptions markerOptions = new MarkerOptions();
-                            markerOptions.position(new LatLng(point.getLatitude(), point.getLongitude()));
-                            if (i == 0)
-                                markerOptions.icon(bitmapDescriptorFromVector(routeViewHolder.routeReceivedTime.getContext(), R.drawable.ic_start_marker));
-                            else if (i == routePoints.size() - 1 && routePoints.size() != 1)
-                                markerOptions.icon(bitmapDescriptorFromVector(routeViewHolder.routeReceivedTime.getContext(), R.drawable.ic_finish_marker));
-                            googleMap.addMarker(markerOptions);
-                            googleMap.addMarker(markerOptions);
-                        }
-                        LatLng firstPoint = new LatLng(routePoints.get(0).getLatitude(),routePoints.get(0).getLongitude());
-                        CameraPosition.Builder builder = CameraPosition.builder();
-                        builder.zoom(10);
-                        builder.target(firstPoint);
-                        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-                    }
-                    googleMap.setOnMapClickListener(latLng -> {
-                        Intent openMapActivity = new Intent(routeViewHolder.routeReceivedTime.getContext(),MapActivity.class);
-                        openMapActivity.putExtra(UserProfileFragment.MODE_KEY,MapActivity.MODE_DISPLAY);
-                        openMapActivity.putExtra(UserProfileFragment.ROUTE_NAME_KEY,message.getRouteName());
-                        ArrayList<LatLngSerializablePair> serRoute = new ArrayList<>();
-                        for(GeoPoint point:routePoints)
-                        {
-                            serRoute.add(new LatLngSerializablePair(point.getLatitude(),point.getLongitude()));
-                        }
-                        openMapActivity.putExtra(MapActivity.ROUTE_POINTS_KEY,serRoute);
-                        startActivity(openMapActivity);
-                    });
-                });
-                */
             }
         }
 
@@ -431,7 +358,6 @@ public class ChatActivity extends AppCompatActivity{
                 receivedMap = itemView.findViewById(R.id.received_map);
                 routeReceivedTime = itemView.findViewById(R.id.route_received_time);
                 receivedMap.onCreate(null);
-                receivedMap.onResume();
                 receivedMap.getMapAsync(this);
             }
 
@@ -486,6 +412,9 @@ public class ChatActivity extends AppCompatActivity{
                         serRoute.add(new LatLngSerializablePair(point.getLatitude(),point.getLongitude()));
                     }
                     openMapActivity.putExtra(MapActivity.ROUTE_POINTS_KEY,serRoute);
+                    openMapActivity.putExtra(MapActivity.UID_KEY,user.getuID());
+                    openMapActivity.putExtra(MapActivity.NAME_KEY,user.getFirstName()+" "+user.getLastName());
+                    openMapActivity.putExtra(MapActivity.LOCATION_KEY,user.getCountry()+", "+user.getCity());
                     startActivity(openMapActivity);
                 });
                 map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -502,7 +431,6 @@ public class ChatActivity extends AppCompatActivity{
                 sentMap = itemView.findViewById(R.id.sent_map);
                 routeSentTime = itemView.findViewById(R.id.route_sent_time);
                 sentMap.onCreate(null);
-                sentMap.onResume();
                 sentMap.getMapAsync(this);
             }
             @Override
@@ -555,6 +483,9 @@ public class ChatActivity extends AppCompatActivity{
                         serRoute.add(new LatLngSerializablePair(point.getLatitude(),point.getLongitude()));
                     }
                     openMapActivity.putExtra(MapActivity.ROUTE_POINTS_KEY,serRoute);
+                    openMapActivity.putExtra(MapActivity.UID_KEY,user.getuID());
+                    openMapActivity.putExtra(MapActivity.NAME_KEY,user.getFirstName()+" "+user.getLastName());
+                    openMapActivity.putExtra(MapActivity.LOCATION_KEY,user.getCountry()+", "+user.getCity());
                     startActivity(openMapActivity);
                 });
                 map.setMapType(GoogleMap.MAP_TYPE_NORMAL);

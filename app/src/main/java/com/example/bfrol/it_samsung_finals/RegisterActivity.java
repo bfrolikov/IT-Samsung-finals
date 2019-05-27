@@ -16,6 +16,7 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -85,6 +86,6 @@ public class RegisterActivity extends AppCompatActivity {
         String country = ((EditText) findViewById(R.id.register_country)).getText().toString();
         String city = ((EditText) findViewById(R.id.register_city)).getText().toString();
         String demands = ((EditText) findViewById(R.id.register_demands)).getText().toString();
-        return new User(name, lastName, socialMedia, country, city, demands, uid, 0, new HashMap<>());
+        return new User(name, lastName, socialMedia, country, city, demands, uid, 0, new HashMap<>(),new ArrayList<>());
     }
 }

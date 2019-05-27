@@ -21,10 +21,11 @@ public class User implements Serializable, Parcelable {
     private String demands;
     private String uID;
     private int rating;
+    private ArrayList<HashMap<String,Object>> currentExcursions;
     private Map<String,ArrayList<GeoPoint>> routes;
     public User() {}
 
-    public User(String firstName, String lastName, String socialMediaLink, String country, String city, String demands, String uID, int rating, Map<String, ArrayList<GeoPoint>> routes) {
+    public User(String firstName, String lastName, String socialMediaLink, String country, String city, String demands, String uID, int rating, Map<String, ArrayList<GeoPoint>> routes,ArrayList<HashMap<String,Object>> currentExcursions) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.socialMediaLink = socialMediaLink;
@@ -34,6 +35,7 @@ public class User implements Serializable, Parcelable {
         this.uID = uID;
         this.rating = rating;
         this.routes = routes;
+        this.currentExcursions = currentExcursions;
     }
 
     protected User(Parcel in) {
@@ -60,6 +62,7 @@ public class User implements Serializable, Parcelable {
             routesTemp.put(keys.get(i),temp);
         }
         routes = routesTemp;
+        currentExcursions = new ArrayList<>();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -105,6 +108,8 @@ public class User implements Serializable, Parcelable {
     }
 
     public Map<String, ArrayList<GeoPoint>> getRoutes() { return routes; }
+
+    public ArrayList<HashMap<String, Object>> getCurrentExcursions() { return currentExcursions; }
 
     @Override
     public int describeContents() {

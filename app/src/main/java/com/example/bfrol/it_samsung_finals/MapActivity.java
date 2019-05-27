@@ -11,16 +11,19 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
+import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
@@ -40,6 +43,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -49,12 +53,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private FusedLocationProviderClient fusedLocationClient;
     private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
     public static final String ROUTE_POINTS_KEY = "routepointskey";
+    public static final String UID_KEY = "uidkey";
+    public static final String NAME_KEY = "namekey";
+    public static final String LOCATION_KEY = "locationekey";
     public static final int LOCATION_PERMISSION = 0;
     public static final int MODE_DISPLAY = 1;
     public static final int MODE_EDIT = 2;
     public static final int MODE_ADD = 3;
     private int mode = MODE_DISPLAY;
     private String routeName = null;
+    private String uID = null;
+    private String uName = null;
+    private String uLocation = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +90,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     routePoints.add(new LatLng(pair.getLatitude(), pair.getLongitude()));
                 }
             }
+            uID = intent.getStringExtra(UID_KEY);
+            uName = intent.getStringExtra(NAME_KEY);
+            uLocation = intent.getStringExtra(LOCATION_KEY);
+            Log.v("mode_display","yes");
         }
         Bundle mapViewBundle = null;
         if (savedInstanceState != null) {
@@ -94,9 +108,43 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (mode == MODE_DISPLAY) {
 
             routeName.setKeyListener(null);//make not editable
-            mapOkButton.setText(R.string.close);
+            mapOkButton.setText(R.string.save_excursion);
             mapOkButton.setOnClickListener(caller -> {
                 //send info that the user closed the map
+                if(uID!=null && uName!=null && uLocation!=null)
+                {
+                    ArrayList<GeoPoint> geoPointsTemp = new ArrayList<>();
+                    for(LatLng point:routePoints)
+                    {
+                        geoPointsTemp.add(new GeoPoint(point.latitude,point.longitude));
+                    }
+                    HashMap<String,Object> newExcursion = new HashMap<>();
+                    newExcursion.put("uID",uID);
+                    newExcursion.put("name",uName);
+                    newExcursion.put("points",geoPointsTemp);
+                    newExcursion.put("location",uLocation);
+                    if(!MainActivity.currentUser.getCurrentExcursions().contains(newExcursion)) {
+                        MainActivity.currentUser.getCurrentExcursions().add(newExcursion);
+                        FirebaseFirestore.getInstance().
+                                collection("users").
+                                document(MainActivity.currentUser.getuID()).
+                                set(MainActivity.currentUser).
+                                addOnSuccessListener(aVoid -> {
+                                }).
+                                addOnFailureListener(e -> {
+                                    Toast.makeText(getApplicationContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                        Intent openCalendarIntent = new Intent(Intent.ACTION_INSERT)
+                                .setData(CalendarContract.Events.CONTENT_URI)
+                                .putExtra(CalendarContract.Events.TITLE, getResources().getString(R.string.excursion_with_user) + " " + uName)
+                                .putExtra(CalendarContract.Events.EVENT_LOCATION, uLocation);
+                        startActivity(openCalendarIntent);
+                    }
+                    else
+                        Toast.makeText(getApplicationContext(),R.string.excursion_already_exists,Toast.LENGTH_LONG).show();
+                }
+                else
+                    Toast.makeText(this,R.string.error,Toast.LENGTH_SHORT).show();
                 finish();
             });
         } else if (mode == MODE_EDIT || mode == MODE_ADD) {
@@ -223,14 +271,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private void drawMarkers() {
-        gmap.clear();
-        for (LatLng point : routePoints) {
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(point);
-            gmap.addMarker(markerOptions);
-        }
-    }
 
     private void drawMarkersWithSigns() {
         gmap.clear();
@@ -277,6 +317,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     });
                 }
             }
+            break;
         }
     }
 

@@ -58,4 +58,9 @@
     <string name="add_to_calendar">Добавить событие в календарь</string>
     <string name="excursion_with_user">Экскурсия с пользователем</string>
     <string name="excursions">Экскурсии</string>
+    <string name="save_excursion">Сохранить напоминание об эксурсии</string>
+    <string name="delete_q">Удалить?</string>
+    <string name="cancel">Отменить</string>
+    <string name="delete">Удалить</string>
+    <string name="excursion_already_exists">Эта экскурсия уже сохранена</string>
 </resources>
