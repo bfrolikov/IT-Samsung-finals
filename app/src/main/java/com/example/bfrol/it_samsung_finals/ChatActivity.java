@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -19,11 +20,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.support.v7.widget.Toolbar;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -62,15 +65,21 @@ public class ChatActivity extends AppCompatActivity{
     private EditText editTextChatBox;
     private ImageButton buttonChatBoxSend;
     private ImageButton routeButton;
+    private Toolbar chatToolbar;
     private CollectionReference activeCollection;
+    private Button addToCalendarButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        chatToolbar = findViewById(R.id.chat_toolbar);
+        chatToolbar.setTitle("");
+        setSupportActionBar(chatToolbar);
         chatReycler = findViewById(R.id.chat_recycler_view);
         editTextChatBox = findViewById(R.id.edittext_chatbox);
         buttonChatBoxSend = findViewById(R.id.button_chatbox_send);
         routeButton = findViewById(R.id.route_button);
+        addToCalendarButton = findViewById(R.id.add_to_calendar_button);
         activeCollection = null;
         Bundle bundle = getIntent().getExtras();
         User user = (User) bundle.getSerializable(SelectedUserProfileActivity.USER_KEY);
@@ -220,6 +229,13 @@ public class ChatActivity extends AppCompatActivity{
                 }
             });
             builder.create().show();
+        });
+        addToCalendarButton.setOnClickListener(caller->{
+            Intent openCalendarIntent = new Intent(Intent.ACTION_INSERT)
+                    .setData(CalendarContract.Events.CONTENT_URI)
+                    .putExtra(CalendarContract.Events.TITLE,getResources().getString(R.string.excursion_with_user)+" "+user.getFirstName()+" "+user.getLastName())
+                    .putExtra(CalendarContract.Events.EVENT_LOCATION,user.getCountry()+", "+user.getCity());
+            startActivity(openCalendarIntent);
         });
     }
     class ChatRecyclerViewAdapter extends RecyclerView.Adapter
