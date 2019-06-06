@@ -3,8 +3,10 @@ package com.example.bfrol.it_samsung_finals;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,8 +29,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.RoundCap;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
@@ -158,24 +163,31 @@ public class ExcursionsFragment extends Fragment {
                 if(route==null) return;
                 if(!route.isEmpty())
                 {
+                    PolylineOptions plo = new PolylineOptions();
+                    plo.color(Color.RED);
+                    plo.geodesic(true);
+                    plo.startCap(new RoundCap());
+                    plo.width(4);
+                    plo.jointType(JointType.BEVEL);
                     for (int i = 0; i < route.size(); i++) {
                         GeoPoint point = route.get(i);
                         MarkerOptions markerOptions = new MarkerOptions();
                         markerOptions.position(new LatLng(point.getLatitude(), point.getLongitude()));
+                        plo.add(new LatLng(point.getLatitude(),point.getLongitude()));
                         if (i == 0)
                             markerOptions.icon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_start_marker));
                         else if (i == route.size() - 1 && route.size() != 1)
                             markerOptions.icon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_finish_marker));
                         gmap.addMarker(markerOptions);
-                        gmap.addMarker(markerOptions);
                     }
+                    gmap.addPolyline(plo);
                     LatLng firstPoint = new LatLng(route.get(0).getLatitude(),route.get(0).getLongitude());
                     CameraPosition.Builder builder = CameraPosition.builder();
                     builder.zoom((float) 8.5);
                     builder.target(firstPoint);
                     gmap.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
                 }
-                gmap.setOnMapClickListener(latLng -> {});
+                gmap.setOnMapClickListener(latLng -> { });
                 gmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
             }

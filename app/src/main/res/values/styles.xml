@@ -84,6 +84,8 @@
         <item name="android:paddingEnd">16dp</item>
         <item name="android:elevation">2dp</item>
         <item name="android:textSize">18sp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxEms">12</item>
     </style>
     <style name="BigCaptionStyle" parent="TextAppearance.MaterialComponents.Subtitle1">
         <item name="android:textSize">22sp</item>

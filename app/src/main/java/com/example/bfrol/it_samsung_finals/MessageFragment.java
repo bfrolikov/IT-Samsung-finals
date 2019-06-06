@@ -151,7 +151,7 @@ class MessageUserRecyclerViewAdapter extends RecyclerView.Adapter<MessageUserRec
             viewHolder.itemView.getContext().startActivity(openChatActivity);
         });
         viewHolder.msgItemName.setText(currentUser.getFirstName()+" "+currentUser.getLastName());
-        viewHolder.msgItemLastMessage.setText("TODO");
+        viewHolder.msgItemLastMessage.setText("");
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference imageReference = storage.getReference("images/"+currentUser.getuID()+".jpg");
         GlideApp.with(viewHolder.msgItemUsrImage).load(imageReference).diskCacheStrategy(DiskCacheStrategy.NONE)

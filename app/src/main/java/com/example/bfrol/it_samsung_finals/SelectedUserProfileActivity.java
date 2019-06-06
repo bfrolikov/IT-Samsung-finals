@@ -45,6 +45,7 @@ public class SelectedUserProfileActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.sel_user_name)).setText(user.getFirstName()+" "+user.getLastName());
         ((TextView)findViewById(R.id.sel_user_demands_text)).setText(user.getDemands());
         ((TextView)findViewById(R.id.sel_user_location)).setText(getResources().getString(R.string.location)+" "+user.getCity()+", "+user.getCountry());
+        ((TextView)findViewById(R.id.sel_user_social_media)).setText(getResources().getString(R.string.social_media_link)+": "+user.getSocialMediaLink());
         ((RatingBar)findViewById(R.id.sel_user_rating)).setRating(user.getRating());
         Button selUserContactButton = findViewById(R.id.sel_user_contact_button);
         selUserContactButton.setOnClickListener(caller->{

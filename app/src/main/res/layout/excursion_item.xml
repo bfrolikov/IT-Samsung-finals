@@ -41,7 +41,9 @@
         android:id="@+id/excursion_item_city"
         style="@style/CityStyle"
         android:layout_marginTop="10dp"
-        android:textSize="20sp"
+        android:textSize="18sp"
+        android:layout_width="250dp"
+        android:ellipsize="end"
         app:layout_constraintStart_toStartOf="@+id/excursion_item_username"
         app:layout_constraintTop_toBottomOf="@+id/excursion_item_username"
         tools:text="Сакраменто" />

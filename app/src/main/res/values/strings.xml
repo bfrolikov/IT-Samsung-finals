@@ -63,4 +63,5 @@
     <string name="cancel">Отменить</string>
     <string name="delete">Удалить</string>
     <string name="excursion_already_exists">Эта экскурсия уже сохранена</string>
+    <string name="hello_interested">Здравствуйте, я заинтересован</string>
 </resources>

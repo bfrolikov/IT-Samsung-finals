@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
@@ -35,8 +36,11 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.RoundCap;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -156,9 +160,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 for (LatLng point : routePoints) {
                     routeGeoPoints.add(new GeoPoint(point.latitude, point.longitude));
                 }
-                if (MainActivity.currentUser.getRoutes().containsKey(this.routeName) && mode == MODE_ADD) {
-                    MainActivity.currentUser.getRoutes().put(this.routeName + "-" + getResources().getString(R.string.copy_noun), routeGeoPoints);
-                } else {
+                if(mode == MODE_ADD) {
+                    if (MainActivity.currentUser.getRoutes().containsKey(routeName.getText().toString().trim()))
+                        MainActivity.currentUser.getRoutes().put(routeName.getText().toString().trim() + "-" + getResources().getString(R.string.copy_noun), routeGeoPoints);
+                    else
+                        MainActivity.currentUser.getRoutes().put(routeName.getText().toString().trim(), routeGeoPoints);
+
+                }
+                else
+                {
                     MainActivity.currentUser.getRoutes().put(this.routeName, routeGeoPoints);
                 }
                 firebaseFirestore.collection("users").document(currentUser.getUid()).set(MainActivity.currentUser)
@@ -274,17 +284,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void drawMarkersWithSigns() {
         gmap.clear();
+        PolylineOptions plo = new PolylineOptions();
+        plo.color(Color.RED);
+        plo.geodesic(true);
+        plo.startCap(new RoundCap());
+        plo.width(4);
+        plo.jointType(JointType.BEVEL);
         for (int i = 0; i < routePoints.size(); i++) {
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(routePoints.get(i));
+            plo.add(routePoints.get(i));
             if (i == 0)
                 markerOptions.icon(bitmapDescriptorFromVector(this, R.drawable.ic_start_marker));
             else if (i == routePoints.size() - 1 && routePoints.size() != 1)
                 markerOptions.icon(bitmapDescriptorFromVector(this, R.drawable.ic_finish_marker));
 
             gmap.addMarker(markerOptions);
-
         }
+        gmap.addPolyline(plo);
     }
 
     private int checkForPermission(String permission) {

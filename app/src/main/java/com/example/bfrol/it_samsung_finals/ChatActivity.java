@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
@@ -38,8 +39,11 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.RoundCap;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -147,7 +151,7 @@ public class ChatActivity extends AppCompatActivity{
                                             chatReycler.scrollToPosition(adapter.getItemCount()-1);
                                         }
                                     });
-                            Message firstMessage = new Message(firebaseUser.getUid(),user.getuID(),"Hello, i'm interested",new Date(), "", new ArrayList<>());//generate automatic message
+                            Message firstMessage = new Message(firebaseUser.getUid(),user.getuID(),getResources().getString(R.string.hello_interested),new Date(), "", new ArrayList<>());//generate automatic message
                             activeCollection.add(firstMessage).addOnSuccessListener(documentReference1 -> {
                                 //add new message to the collection
                             });
@@ -385,17 +389,24 @@ public class ChatActivity extends AppCompatActivity{
                 ArrayList<GeoPoint> routePoints = message.getRoutePoints();
                 if(!routePoints.isEmpty())
                 {
+                    PolylineOptions plo = new PolylineOptions();
+                    plo.color(Color.RED);
+                    plo.geodesic(true);
+                    plo.startCap(new RoundCap());
+                    plo.width(4);
+                    plo.jointType(JointType.BEVEL);
                     for (int i = 0; i < routePoints.size(); i++) {
                         GeoPoint point = routePoints.get(i);
                         MarkerOptions markerOptions = new MarkerOptions();
                         markerOptions.position(new LatLng(point.getLatitude(), point.getLongitude()));
+                        plo.add(new LatLng(point.getLatitude(),point.getLongitude()));
                         if (i == 0)
                             markerOptions.icon(bitmapDescriptorFromVector(routeReceivedTime.getContext(), R.drawable.ic_start_marker));
                         else if (i == routePoints.size() - 1 && routePoints.size() != 1)
                             markerOptions.icon(bitmapDescriptorFromVector(routeReceivedTime.getContext(), R.drawable.ic_finish_marker));
                         map.addMarker(markerOptions);
-                        map.addMarker(markerOptions);
                     }
+                    map.addPolyline(plo);
                     LatLng firstPoint = new LatLng(routePoints.get(0).getLatitude(),routePoints.get(0).getLongitude());
                     CameraPosition.Builder builder = CameraPosition.builder();
                     builder.zoom(10);
@@ -457,16 +468,24 @@ public class ChatActivity extends AppCompatActivity{
                 ArrayList<GeoPoint> routePoints = message.getRoutePoints();
                 if(!routePoints.isEmpty())
                 {
+                    PolylineOptions plo = new PolylineOptions();
+                    plo.color(Color.RED);
+                    plo.geodesic(true);
+                    plo.startCap(new RoundCap());
+                    plo.width(4);
+                    plo.jointType(JointType.BEVEL);
                     for (int i = 0; i < routePoints.size(); i++) {
                         GeoPoint point = routePoints.get(i);
                         MarkerOptions markerOptions = new MarkerOptions();
                         markerOptions.position(new LatLng(point.getLatitude(), point.getLongitude()));
+                        plo.add(new LatLng(point.getLatitude(),point.getLongitude()));
                         if (i == 0)
                             markerOptions.icon(bitmapDescriptorFromVector(routeSentTime.getContext(), R.drawable.ic_start_marker));
                         else if (i == routePoints.size() - 1 && routePoints.size() != 1)
                             markerOptions.icon(bitmapDescriptorFromVector(routeSentTime.getContext(), R.drawable.ic_finish_marker));
                         map.addMarker(markerOptions);
                     }
+                    map.addPolyline(plo);
                     LatLng firstPoint = new LatLng(routePoints.get(0).getLatitude(),routePoints.get(0).getLongitude());
                     CameraPosition.Builder builder = CameraPosition.builder();
                     builder.zoom(10);
